@@ -300,22 +300,16 @@ async function fetchMe(token) {
 }
 
 async function fetchMyItems(token, userId) {
-  // Step 1: get items assigned to this user across all boards
-  // Monday doesn't expose a direct "my_work" API endpoint, so we use
-  // items_by_multiple_column_values with the user's ID on the people column,
-  // combined with fetching boards the user is subscribed to.
-  // Best available approach: fetch all boards user has access to, paginate items,
-  // filter by assignee. We increase limits and fetch status options per board.
+  // Fetch boards + columns first, then query items without server-side person filter
+  // (column IDs vary per board, so we filter client-side by people column type)
   const d = await gql(`{
     boards(limit: 100, state: active) {
       id name
       columns { id type settings_str }
-      items_page(limit: 500, query_params: {
-        rules: [{ column_id: "person", compare_value: ["${userId}"] }]
-      }) {
+      items_page(limit: 500) {
         items {
           id name
-          column_values(ids: ["status","person","date4","due_date","timeline"]) {
+          column_values {
             id type text value
           }
         }
@@ -325,7 +319,10 @@ async function fetchMyItems(token, userId) {
 
   const myItems = [];
   for (const board of (d.boards || [])) {
+    // Find columns by type — don't assume fixed IDs
     const statusCol = (board.columns||[]).find(c => c.type === 'color');
+    const dateColDef = (board.columns||[]).find(c => c.type === 'date' || c.type === 'timeline');
+
     let statusOptions = [];
     if (statusCol?.settings_str) {
       try {
@@ -338,16 +335,28 @@ async function fetchMyItems(token, userId) {
     }
 
     for (const item of (board.items_page?.items || [])) {
+      // Find people column by type, filter to items assigned to this user
+      const personCv = item.column_values.find(c => c.type === 'people');
+      if (!personCv?.value) continue;
+      let assigned = false;
+      try {
+        const v = JSON.parse(personCv.value);
+        assigned = (v.personsAndTeams||[]).some(p => String(p.id) === String(userId));
+      } catch { continue; }
+      if (!assigned) continue;
+
+      // Status — find by type
       const sCv = item.column_values.find(c => c.type === 'color');
       const status = sCv?.text || 'No Status';
       const currentOpt = statusOptions.find(o => o.label === status);
 
-      const dateCol = item.column_values.find(c =>
-        (c.type === 'date' || c.type === 'timeline') && c.text
-      );
+      // Due date — find by type
+      const dateCv = dateColDef
+        ? item.column_values.find(c => c.id === dateColDef.id && c.text)
+        : item.column_values.find(c => (c.type === 'date' || c.type === 'timeline') && c.text);
       let due = null;
-      if (dateCol?.text) {
-        const parts = dateCol.text.split(' - ');
+      if (dateCv?.text) {
+        const parts = dateCv.text.split(' - ');
         due = parts[parts.length-1].trim();
       }
 
