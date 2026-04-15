@@ -467,7 +467,22 @@ function buildStatusPill(item, token) {
     e.stopPropagation();
     const wasOpen = menu.classList.contains('open');
     closeAllMenus();
-    if (!wasOpen && item.statusOptions.length > 0) menu.classList.add('open');
+    if (!wasOpen && item.statusOptions.length > 0) {
+      // Position menu using fixed coords from pill's bounding rect
+      const rect = pill.getBoundingClientRect();
+      const menuWidth = 180;
+      // Align right edge of menu to right edge of pill, flip up if near bottom
+      let left = rect.right - menuWidth;
+      if (left < 8) left = 8;
+      let top = rect.bottom + 4;
+      // If menu would go off bottom of viewport, show above pill instead
+      const estHeight = Math.min(item.statusOptions.length * 36, 220);
+      if (top + estHeight > window.innerHeight - 8) top = rect.top - estHeight - 4;
+      menu.style.left = `${left}px`;
+      menu.style.top  = `${top}px`;
+      menu.style.width = `${menuWidth}px`;
+      menu.classList.add('open');
+    }
   });
 
   wrap.appendChild(pill);
