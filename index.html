@@ -12,7 +12,6 @@
     height: 100vh; display: flex; flex-direction: column;
   }
 
-  /* ── Setup ── */
   #setup {
     display: flex; flex-direction: column;
     justify-content: center; align-items: center;
@@ -32,7 +31,6 @@
   #setup button:hover { background: #0060c0; }
   #setup .err { color: #d83a52; font-size: 12px; }
 
-  /* ── Main ── */
   #main { display: none; flex-direction: column; flex: 1; overflow: hidden; }
 
   .topbar {
@@ -48,25 +46,21 @@
   }
   .icon-btn:hover { background: #f0f2f8; color: #0073ea; }
   .icon-btn.spinning svg { animation: spin .7s linear infinite; }
-
   .topbar-row2 { display: flex; align-items: center; justify-content: space-between; }
   .topbar-summary { font-size: 11px; color: #676879; }
 
-  /* Group-by toggle */
   .group-toggle {
     display: flex; background: #f0f2f8; border-radius: 6px; padding: 2px; gap: 2px;
   }
   .toggle-btn {
     font-size: 11px; font-weight: 500; color: #676879;
     border: none; background: none; border-radius: 4px;
-    padding: 3px 9px; cursor: pointer; transition: background .12s, color .12s;
-    white-space: nowrap;
+    padding: 3px 9px; cursor: pointer; transition: background .12s, color .12s; white-space: nowrap;
   }
   .toggle-btn.active { background: #fff; color: #0073ea; box-shadow: 0 1px 3px rgba(0,0,0,.1); }
 
   #scroll { overflow-y: auto; flex: 1; padding: 10px 10px 20px; }
 
-  /* ── Groups ── */
   .group { margin-bottom: 14px; }
   .group-header {
     display: flex; align-items: center; gap: 6px;
@@ -83,14 +77,14 @@
   .chevron { font-size: 10px; color: #676879; transition: transform .15s; }
   .chevron.open { transform: rotate(90deg); }
 
-  /* ── Cards ── */
   .cards { display: flex; flex-direction: column; gap: 6px; }
   .card {
     background: #fff; border: 1px solid #e6e9ef;
     border-radius: 8px; padding: 9px 11px;
-    transition: box-shadow .12s, border-color .12s; position: relative;
+    transition: box-shadow .12s, border-color .12s;
   }
   .card:hover { border-color: #c3c6d4; box-shadow: 0 1px 6px rgba(0,0,0,.07); }
+
   .card-top {
     display: flex; align-items: flex-start;
     justify-content: space-between; gap: 6px; margin-bottom: 6px;
@@ -100,6 +94,7 @@
     word-break: break-word; flex: 1; cursor: pointer;
   }
   .card-name:hover { color: #0073ea; text-decoration: underline; }
+
   .card-meta { display: flex; flex-wrap: wrap; gap: 5px; align-items: center; }
   .meta-tag {
     font-size: 11px; background: #f0f2f8; color: #676879;
@@ -111,8 +106,9 @@
   .meta-tag.overdue { color: #d83a52; background: #fde8ec; }
   .meta-tag.nodue   { color: #c3c6d4; background: #f6f7fb; font-style: italic; }
 
-  /* ── Status pill ── */
+  /* ── Inline status selector (no floating dropdown) ── */
   .status-wrap { position: relative; flex-shrink: 0; }
+
   .status-pill {
     display: inline-flex; align-items: center; gap: 4px;
     font-size: 11px; font-weight: 600; padding: 3px 8px; border-radius: 20px;
@@ -123,23 +119,28 @@
   .status-pill .pill-caret { font-size: 8px; opacity: .8; }
   .status-pill.saving { opacity: .6; pointer-events: none; }
 
-  .status-dropdown {
-    position: absolute; right: 0; top: calc(100% + 4px);
-    background: #fff; border: 1px solid #e6e9ef;
-    border-radius: 8px; box-shadow: 0 4px 16px rgba(0,0,0,.12);
-    z-index: 100; min-width: 160px; max-height: 220px;
-    overflow-y: auto; padding: 4px; display: none;
+  /* Inline dropdown — expands inside card flow, no absolute positioning */
+  .status-menu {
+    display: none;
+    flex-direction: column;
+    margin-top: 6px;
+    border: 1px solid #e6e9ef;
+    border-radius: 8px;
+    overflow: hidden;
+    background: #fff;
+    box-shadow: 0 2px 8px rgba(0,0,0,.08);
   }
-  .status-dropdown.open { display: block; }
+  .status-menu.open { display: flex; }
   .status-option {
     display: flex; align-items: center; gap: 8px;
-    padding: 7px 10px; border-radius: 5px; cursor: pointer; font-size: 12px;
+    padding: 8px 10px; cursor: pointer; font-size: 12px;
+    border-bottom: 1px solid #f0f2f8;
   }
-  .status-option:hover { background: #f0f2f8; }
-  .status-option .opt-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
-  .status-option.current { font-weight: 600; }
+  .status-option:last-child { border-bottom: none; }
+  .status-option:hover { background: #f6f7fb; }
+  .status-option.current { font-weight: 600; background: #f0f2f8; }
+  .opt-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
 
-  /* ── States ── */
   .empty-state, .loading {
     display: flex; flex-direction: column;
     align-items: center; justify-content: center;
@@ -225,26 +226,29 @@
 const API = 'https://api.monday.com/v2';
 const STORAGE_KEY = 'monday_api_token';
 const GROUP_KEY   = 'monday_group_by';
+const BATCH_SIZE  = 10; // boards per request
+const MAX_BOARDS  = 100;
 
 let currentItems = [];
 let groupBy = localStorage.getItem(GROUP_KEY) || 'status';
 
-// Sync toggle UI on load
 document.querySelectorAll('.toggle-btn').forEach(b => {
   b.classList.toggle('active', b.dataset.group === groupBy);
   b.addEventListener('click', () => {
     groupBy = b.dataset.group;
     localStorage.setItem(GROUP_KEY, groupBy);
-    document.querySelectorAll('.toggle-btn').forEach(x => x.classList.toggle('active', x.dataset.group === groupBy));
+    document.querySelectorAll('.toggle-btn').forEach(x =>
+      x.classList.toggle('active', x.dataset.group === groupBy));
     renderBoard(currentItems, getToken());
   });
 });
 
+// Close open status menus when clicking outside
 document.addEventListener('click', e => {
-  if (!e.target.closest('.status-wrap')) closeAllDropdowns();
+  if (!e.target.closest('.status-wrap')) closeAllMenus();
 });
-function closeAllDropdowns() {
-  document.querySelectorAll('.status-dropdown.open').forEach(d => d.classList.remove('open'));
+function closeAllMenus() {
+  document.querySelectorAll('.status-menu.open').forEach(m => m.classList.remove('open'));
 }
 
 const STATUS_COLORS = {
@@ -252,12 +256,9 @@ const STATUS_COLORS = {
   'working on it':'#fdab3d','in progress':'#fdab3d',
   'stuck':'#e2445c','blocked':'#e2445c',
   'waiting for review':'#a25ddc','pending review':'#a25ddc',
-  'not started':'#c4c4c4','':'#c4c4c4',
-  'default':'#0073ea'
+  'not started':'#c4c4c4','':'#c4c4c4','default':'#0073ea'
 };
-function statusColor(label) {
-  return STATUS_COLORS[(label||'').toLowerCase()] || STATUS_COLORS.default;
-}
+function statusColor(l) { return STATUS_COLORS[(l||'').toLowerCase()] || STATUS_COLORS.default; }
 
 function getToken() { return localStorage.getItem(STORAGE_KEY); }
 function saveToken(t) { localStorage.setItem(STORAGE_KEY, t); }
@@ -272,12 +273,11 @@ function showMain() {
   document.getElementById('setup').style.display = 'none';
   document.getElementById('main').style.display = 'flex';
 }
-function showToast(msg, duration=2000) {
+function showToast(msg, dur=2000) {
   const t = document.getElementById('toast');
   t.textContent = msg; t.classList.add('show');
-  setTimeout(() => t.classList.remove('show'), duration);
+  setTimeout(() => t.classList.remove('show'), dur);
 }
-
 function escHtml(s) {
   return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 }
@@ -299,95 +299,110 @@ async function fetchMe(token) {
   return d.me;
 }
 
+// Chunk array into groups of n
+function chunk(arr, n) {
+  const out = [];
+  for (let i = 0; i < arr.length; i += n) out.push(arr.slice(i, i + n));
+  return out;
+}
+
 async function fetchMyItems(token, userId, onProgress) {
-  // First fetch just the board list (fast)
+  // Step 1: get board list + column metadata (one fast request)
+  onProgress('Fetching your boards…');
   const boardList = await gql(`{
-    boards(limit: 50, state: active) { id name columns { id type settings_str } }
+    boards(limit: ${MAX_BOARDS}, state: active) { id name columns { id type settings_str } }
   }`, {}, token);
 
   const boards = boardList.boards || [];
+  const batches = chunk(boards, BATCH_SIZE);
   const myItems = [];
 
-  for (let i = 0; i < boards.length; i++) {
-    const board = boards[i];
-    onProgress(`Checking board ${i + 1} of ${boards.length}…`);
+  // Step 2: fetch items in batches of BATCH_SIZE using GraphQL aliases
+  for (let bi = 0; bi < batches.length; bi++) {
+    const batch = batches[bi];
+    onProgress(`Loading tasks… (batch ${bi + 1} of ${batches.length})`);
 
-    // Fetch items for this board individually
-    let boardData;
-    try {
-      boardData = await gql(`{
-        boards(ids: [${board.id}]) {
-          items_page(limit: 100) {
-            items {
-              id name
-              column_values { id type text value }
-            }
+    // Build a multi-board query using aliases
+    const aliasQueries = batch.map((b, i) =>
+      `b${i}: boards(ids: [${b.id}]) {
+        id
+        items_page(limit: 100) {
+          items {
+            id name
+            column_values { id type text value }
           }
         }
-      }`, {}, token);
+      }`
+    ).join('\n');
+
+    let batchData;
+    try {
+      batchData = await gql(`{ ${aliasQueries} }`, {}, token);
     } catch { continue; }
 
-    const statusCol = (board.columns||[]).find(c => c.type === 'color' || c.type === 'status');
-    const dateColDef = (board.columns||[]).find(c => c.type === 'date' || c.type === 'timeline');
+    // Process each board in the batch
+    for (let i = 0; i < batch.length; i++) {
+      const boardMeta = batch[i];
+      const boardResult = batchData[`b${i}`]?.[0];
+      if (!boardResult) continue;
 
-    let statusOptions = [];
-    if (statusCol?.settings_str) {
-      try {
-        const s = JSON.parse(statusCol.settings_str);
-        statusOptions = Object.entries(s.labels||{}).map(([idx, label]) => ({
-          index: parseInt(idx), label,
-          color: s.labels_colors?.[idx]?.color || statusColor(label)
-        }));
-      } catch {}
-    }
+      const statusCol = (boardMeta.columns||[]).find(c => c.type === 'color' || c.type === 'status');
+      const dateColDef = (boardMeta.columns||[]).find(c => c.type === 'date' || c.type === 'timeline');
 
-    for (const item of (boardData.boards?.[0]?.items_page?.items || [])) {
-
-
-      // Find people column by type, filter to items assigned to this user
-      const personCv = item.column_values.find(c => c.type === 'people');
-      if (!personCv?.value) continue;
-      let assigned = false;
-      try {
-        const v = JSON.parse(personCv.value);
-        assigned = (v.personsAndTeams||[]).some(p => String(p.id) === String(userId));
-      } catch { continue; }
-      if (!assigned) continue;
-
-      // Status — find by type (API returns 'color' or 'status' depending on version)
-      const sCv = item.column_values.find(c => c.type === 'color' || c.type === 'status');
-      const status = sCv?.text || 'No Status';
-      const currentOpt = statusOptions.find(o => o.label === status);
-
-      // Due date — find by type
-      const dateCv = dateColDef
-        ? item.column_values.find(c => c.id === dateColDef.id && c.text)
-        : item.column_values.find(c => (c.type === 'date' || c.type === 'timeline') && c.text);
-      let due = null;
-      if (dateCv?.text) {
-        const parts = dateCv.text.split(' - ');
-        due = parts[parts.length-1].trim();
+      let statusOptions = [];
+      if (statusCol?.settings_str) {
+        try {
+          const s = JSON.parse(statusCol.settings_str);
+          statusOptions = Object.entries(s.labels||{}).map(([idx, label]) => ({
+            index: parseInt(idx), label,
+            color: s.labels_colors?.[idx]?.color || statusColor(label)
+          }));
+        } catch {}
       }
 
-      myItems.push({
-        id: item.id, name: item.name,
-        board: board.name, boardId: board.id,
-        status, statusIndex: currentOpt?.index ?? null,
-        statusColId: statusCol?.id || 'status',
-        statusOptions, due
-      });
+      for (const item of (boardResult.items_page?.items || [])) {
+        // Filter to items assigned to this user
+        const personCv = item.column_values.find(c => c.type === 'people');
+        if (!personCv?.value) continue;
+        let assigned = false;
+        try {
+          const v = JSON.parse(personCv.value);
+          assigned = (v.personsAndTeams||[]).some(p => String(p.id) === String(userId));
+        } catch { continue; }
+        if (!assigned) continue;
+
+        const sCv = item.column_values.find(c => c.type === 'color' || c.type === 'status');
+        const status = sCv?.text || 'No Status';
+        const currentOpt = statusOptions.find(o => o.label === status);
+
+        const dateCv = dateColDef
+          ? item.column_values.find(c => c.id === dateColDef.id && c.text)
+          : item.column_values.find(c => (c.type==='date'||c.type==='timeline') && c.text);
+        let due = null;
+        if (dateCv?.text) {
+          const parts = dateCv.text.split(' - ');
+          due = parts[parts.length-1].trim();
+        }
+
+        myItems.push({
+          id: item.id, name: item.name,
+          board: boardMeta.name, boardId: boardMeta.id,
+          status, statusIndex: currentOpt?.index ?? null,
+          statusColId: statusCol?.id || 'status',
+          statusOptions, due
+        });
+      }
     }
   }
   return myItems;
 }
 
 async function updateStatus(token, itemId, boardId, colId, statusIndex) {
-  // Use change_simple_column_value with label string as fallback-safe approach
   await gql(
     `mutation($boardId:ID!,$itemId:ID!,$colId:String!,$val:JSON!){
        change_column_value(board_id:$boardId,item_id:$itemId,column_id:$colId,value:$val,create_labels_if_missing:false){id}
      }`,
-    { boardId: String(boardId), itemId: String(itemId), colId, val: JSON.stringify({ index: statusIndex }) },
+    { boardId:String(boardId), itemId:String(itemId), colId, val:JSON.stringify({index:statusIndex}) },
     token
   );
 }
@@ -414,8 +429,9 @@ function buildStatusPill(item, token) {
   pill.style.background = statusColor(item.status);
   pill.innerHTML = `${escHtml(item.status)} <span class="pill-caret">▾</span>`;
 
-  const dropdown = document.createElement('div');
-  dropdown.className = 'status-dropdown';
+  // Inline menu — expands inside the card, no floating overlay
+  const menu = document.createElement('div');
+  menu.className = 'status-menu';
 
   for (const opt of item.statusOptions) {
     const row = document.createElement('div');
@@ -423,8 +439,8 @@ function buildStatusPill(item, token) {
     row.innerHTML = `<span class="opt-dot" style="background:${opt.color}"></span>${escHtml(opt.label)}`;
     row.addEventListener('click', async e => {
       e.stopPropagation();
-      if (opt.label === item.status) { dropdown.classList.remove('open'); return; }
-      dropdown.classList.remove('open');
+      if (opt.label === item.status) { menu.classList.remove('open'); return; }
+      menu.classList.remove('open');
       pill.classList.add('saving');
       pill.innerHTML = `Saving… <span class="pill-caret">▾</span>`;
       try {
@@ -433,33 +449,33 @@ function buildStatusPill(item, token) {
         item.statusIndex = opt.index;
         pill.style.background = opt.color;
         pill.innerHTML = `${escHtml(opt.label)} <span class="pill-caret">▾</span>`;
-        dropdown.querySelectorAll('.status-option').forEach(r => r.classList.remove('current'));
+        menu.querySelectorAll('.status-option').forEach(r => r.classList.remove('current'));
         row.classList.add('current');
         showToast('✓ Status updated');
         renderBoard(currentItems, token);
-      } catch {
+      } catch(err) {
         pill.innerHTML = `${escHtml(item.status)} <span class="pill-caret">▾</span>`;
         showToast('⚠ Could not update status', 3000);
       } finally {
         pill.classList.remove('saving');
       }
     });
-    dropdown.appendChild(row);
+    menu.appendChild(row);
   }
 
   pill.addEventListener('click', e => {
     e.stopPropagation();
-    const wasOpen = dropdown.classList.contains('open');
-    closeAllDropdowns();
-    if (!wasOpen) dropdown.classList.add('open');
+    const wasOpen = menu.classList.contains('open');
+    closeAllMenus();
+    if (!wasOpen && item.statusOptions.length > 0) menu.classList.add('open');
   });
 
   wrap.appendChild(pill);
-  wrap.appendChild(dropdown);
+  wrap.appendChild(menu);
   return wrap;
 }
 
-function buildCard(item, token, showBoard, showStatus) {
+function buildCard(item, token) {
   const due = formatDue(item.due);
   const card = document.createElement('div');
   card.className = 'card';
@@ -475,20 +491,12 @@ function buildCard(item, token, showBoard, showStatus) {
     window.open(`https://monday.com/boards/${item.boardId}/items/${item.id}`, '_blank')
   );
   top.appendChild(name);
-
-  if (showStatus && item.statusOptions.length > 0) {
-    top.appendChild(buildStatusPill(item, token));
-  }
+  top.appendChild(buildStatusPill(item, token));
 
   const meta = document.createElement('div');
   meta.className = 'card-meta';
-
-  if (showBoard) {
+  if (groupBy === 'status') {
     meta.innerHTML += `<span class="meta-tag board" title="${escHtml(item.board)}">${escHtml(item.board)}</span>`;
-  }
-  if (!showStatus) {
-    // Show status as a plain tag when grouping by board
-    meta.innerHTML += `<span class="meta-tag" style="background:${statusColor(item.status)}22;color:${statusColor(item.status)}">${escHtml(item.status)}</span>`;
   }
   meta.innerHTML += due
     ? `<span class="meta-tag ${due.cls}">${due.label}</span>`
@@ -515,7 +523,6 @@ function renderBoard(items, token) {
     return;
   }
 
-  // Build groups
   const groups = {};
   for (const item of items) {
     const key = groupBy === 'board' ? item.board : item.status;
@@ -523,7 +530,6 @@ function renderBoard(items, token) {
     groups[key].push(item);
   }
 
-  // Sort group keys
   const sortedKeys = Object.keys(groups).sort((a, b) => {
     if (groupBy === 'status') {
       const aD = /done|complet/i.test(a) ? 1 : 0;
@@ -549,16 +555,7 @@ function renderBoard(items, token) {
 
     const cards = document.createElement('div');
     cards.className = 'cards';
-
-    for (const item of grpItems) {
-      // When grouping by board: show status pill + status tag in meta
-      // When grouping by status: show board tag, status pill in card top
-      cards.appendChild(buildCard(
-        item, token,
-        /* showBoard  */ groupBy === 'status',
-        /* showStatus */ true
-      ));
-    }
+    for (const item of grpItems) cards.appendChild(buildCard(item, token));
 
     hdr.addEventListener('click', () => {
       const open = cards.style.display !== 'none';
@@ -598,7 +595,6 @@ async function load(token) {
   }
 }
 
-// ── Wiring ──
 document.getElementById('connect-btn').addEventListener('click', async () => {
   const t = document.getElementById('token-input').value.trim();
   if (!t) return;
@@ -624,7 +620,6 @@ function logout() {
 document.getElementById('logout-btn').addEventListener('click', logout);
 document.getElementById('logout-link').addEventListener('click', logout);
 
-// ── Init ──
 const saved = getToken();
 if (saved) { showMain(); load(saved); } else showSetup();
 </script>
