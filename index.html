@@ -1,0 +1,476 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>My Work</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    font-size: 13px;
+    background: #f6f7fb;
+    color: #323338;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* ── Setup screen ── */
+  #setup {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    flex: 1;
+    padding: 24px;
+    gap: 12px;
+  }
+  #setup h2 { font-size: 15px; font-weight: 600; }
+  #setup p  { font-size: 12px; color: #676879; text-align: center; line-height: 1.5; }
+  #setup input {
+    width: 100%;
+    padding: 8px 10px;
+    border: 1px solid #c3c6d4;
+    border-radius: 6px;
+    font-size: 13px;
+    outline: none;
+  }
+  #setup input:focus { border-color: #0073ea; }
+  #setup button {
+    width: 100%;
+    padding: 9px;
+    background: #0073ea;
+    color: #fff;
+    border: none;
+    border-radius: 6px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+  }
+  #setup button:hover { background: #0060c0; }
+  #setup .err { color: #d83a52; font-size: 12px; }
+
+  /* ── Main view ── */
+  #main { display: none; flex-direction: column; flex: 1; overflow: hidden; }
+
+  .topbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 12px 8px;
+    border-bottom: 1px solid #e6e9ef;
+    background: #fff;
+    flex-shrink: 0;
+  }
+  .topbar h1 { font-size: 14px; font-weight: 700; }
+  .topbar-actions { display: flex; gap: 6px; }
+  .icon-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: #676879;
+    padding: 4px;
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+  }
+  .icon-btn:hover { background: #f0f2f8; color: #0073ea; }
+
+  #scroll { overflow-y: auto; flex: 1; padding: 10px 10px 20px; }
+
+  /* ── Status group ── */
+  .group { margin-bottom: 14px; }
+  .group-header {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 6px;
+    border-radius: 5px;
+    margin-bottom: 6px;
+    cursor: pointer;
+    user-select: none;
+  }
+  .group-header:hover { background: rgba(0,0,0,.04); }
+  .status-dot {
+    width: 10px; height: 10px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+  .group-label { font-weight: 600; font-size: 12px; flex: 1; }
+  .group-count {
+    font-size: 11px;
+    color: #676879;
+    background: #e6e9ef;
+    border-radius: 10px;
+    padding: 1px 6px;
+  }
+  .chevron {
+    font-size: 10px;
+    color: #676879;
+    transition: transform .15s;
+  }
+  .chevron.open { transform: rotate(90deg); }
+
+  /* ── Task card ── */
+  .cards { display: flex; flex-direction: column; gap: 6px; }
+  .card {
+    background: #fff;
+    border: 1px solid #e6e9ef;
+    border-radius: 8px;
+    padding: 9px 11px;
+    cursor: pointer;
+    transition: box-shadow .12s, border-color .12s;
+  }
+  .card:hover { border-color: #0073ea; box-shadow: 0 1px 6px rgba(0,115,234,.12); }
+
+  .card-name {
+    font-weight: 500;
+    font-size: 13px;
+    line-height: 1.4;
+    margin-bottom: 5px;
+    word-break: break-word;
+  }
+  .card-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 5px;
+    align-items: center;
+  }
+  .meta-tag {
+    font-size: 11px;
+    background: #f0f2f8;
+    color: #676879;
+    border-radius: 4px;
+    padding: 2px 6px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 140px;
+  }
+  .meta-tag.board { color: #0073ea; background: #e8f3fe; }
+  .meta-tag.due   { color: #c97d00; background: #fff3d6; }
+  .meta-tag.overdue { color: #d83a52; background: #fde8ec; }
+
+  /* ── States ── */
+  .empty-state, .loading {
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    gap: 8px; padding: 40px 20px;
+    color: #676879; font-size: 12px; text-align: center;
+  }
+  .empty-state svg, .loading svg { opacity: .4; }
+  .spinner {
+    width: 28px; height: 28px;
+    border: 3px solid #e6e9ef;
+    border-top-color: #0073ea;
+    border-radius: 50%;
+    animation: spin .7s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  .footer {
+    padding: 6px 12px;
+    font-size: 11px;
+    color: #c3c6d4;
+    text-align: right;
+    flex-shrink: 0;
+    border-top: 1px solid #e6e9ef;
+    background: #fff;
+  }
+  .footer a {
+    color: #c3c6d4;
+    text-decoration: none;
+    cursor: pointer;
+    font-size: 10px;
+  }
+  .footer a:hover { color: #d83a52; }
+</style>
+</head>
+<body>
+
+<!-- ── Setup ── -->
+<div id="setup">
+  <svg width="36" height="36" viewBox="0 0 36 36" fill="none">
+    <rect width="36" height="36" rx="8" fill="#0073EA"/>
+    <path d="M9 18l6 6 12-12" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+  </svg>
+  <h2>Connect Monday.com</h2>
+  <p>Enter your Monday API token to view your assigned tasks here in Front.</p>
+  <input id="token-input" type="password" placeholder="API token (starts with eyJ…)" autocomplete="off"/>
+  <button id="connect-btn">Connect</button>
+  <span id="setup-err" class="err"></span>
+  <p style="font-size:11px;color:#c3c6d4">Get your token: Monday → Profile photo → Admin → API</p>
+</div>
+
+<!-- ── Main ── -->
+<div id="main">
+  <div class="topbar">
+    <h1>My Work</h1>
+    <div class="topbar-actions">
+      <button class="icon-btn" id="refresh-btn" title="Refresh">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/>
+        </svg>
+      </button>
+      <button class="icon-btn" id="logout-btn" title="Disconnect">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/>
+        </svg>
+      </button>
+    </div>
+  </div>
+  <div id="scroll">
+    <div class="loading" id="loading"><div class="spinner"></div><span>Loading your tasks…</span></div>
+    <div id="board"></div>
+  </div>
+  <div class="footer" id="footer">
+    <span id="last-updated"></span> &nbsp;·&nbsp; <a id="logout-link">Disconnect</a>
+  </div>
+</div>
+
+<script>
+const API = 'https://api.monday.com/v2';
+const STORAGE_KEY = 'monday_api_token';
+
+// Status colour map (covers common Monday defaults)
+const STATUS_COLORS = {
+  'done': '#00c875', 'completed': '#00c875',
+  'working on it': '#fdab3d', 'in progress': '#fdab3d',
+  'stuck': '#e2445c', 'blocked': '#e2445c',
+  'waiting for review': '#a25ddc',
+  'pending review': '#a25ddc',
+  'not started': '#c4c4c4', '': '#c4c4c4',
+  'default': '#0073ea'
+};
+
+function statusColor(label) {
+  return STATUS_COLORS[(label || '').toLowerCase()] || STATUS_COLORS.default;
+}
+
+function getToken() { return localStorage.getItem(STORAGE_KEY); }
+function saveToken(t) { localStorage.setItem(STORAGE_KEY, t); }
+function clearToken() { localStorage.removeItem(STORAGE_KEY); }
+
+function showSetup(err) {
+  document.getElementById('setup').style.display = 'flex';
+  document.getElementById('main').style.display = 'none';
+  if (err) document.getElementById('setup-err').textContent = err;
+}
+function showMain() {
+  document.getElementById('setup').style.display = 'none';
+  document.getElementById('main').style.display = 'flex';
+}
+
+async function query(gql, token) {
+  const r = await fetch(API, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'Authorization': token, 'API-Version': '2024-01' },
+    body: JSON.stringify({ query: gql })
+  });
+  if (!r.ok) throw new Error(`HTTP ${r.status}`);
+  const j = await r.json();
+  if (j.errors) throw new Error(j.errors[0].message);
+  return j.data;
+}
+
+async function fetchMe(token) {
+  const d = await query(`{ me { id name } }`, token);
+  return d.me;
+}
+
+async function fetchMyItems(token, userId) {
+  // Fetch boards the user has access to, then filter items assigned to them
+  const d = await query(`{
+    boards(limit: 50, state: active) {
+      id name
+      items_page(limit: 100) {
+        items {
+          id name
+          column_values(ids: ["status","person","date4","due_date","timeline"]) {
+            id type text value
+          }
+        }
+      }
+    }
+  }`, token);
+
+  const myItems = [];
+  for (const board of (d.boards || [])) {
+    for (const item of (board.items_page?.items || [])) {
+      // Check if this user is assigned (person column)
+      const personCol = item.column_values.find(c => c.type === 'people');
+      if (!personCol || !personCol.value) continue;
+      let assigned = false;
+      try {
+        const v = JSON.parse(personCol.value);
+        assigned = (v.personsAndTeams || []).some(p => String(p.id) === String(userId));
+      } catch { continue; }
+      if (!assigned) continue;
+
+      // Status
+      const statusCol = item.column_values.find(c => c.type === 'color');
+      const status = statusCol?.text || 'No Status';
+
+      // Due date — try common column IDs
+      const dateCol = item.column_values.find(c =>
+        (c.type === 'date' || c.type === 'timeline') && c.text
+      );
+      let due = null;
+      if (dateCol?.text) {
+        // timeline returns "YYYY-MM-DD - YYYY-MM-DD", grab last date
+        const parts = dateCol.text.split(' - ');
+        due = parts[parts.length - 1].trim();
+      }
+
+      myItems.push({ id: item.id, name: item.name, board: board.name, boardId: board.id, status, due });
+    }
+  }
+  return myItems;
+}
+
+function formatDue(dateStr) {
+  if (!dateStr) return null;
+  try {
+    const d = new Date(dateStr + 'T00:00:00');
+    const today = new Date(); today.setHours(0,0,0,0);
+    const diff = Math.round((d - today) / 86400000);
+    if (diff < 0)  return { label: `Overdue · ${dateStr}`, cls: 'overdue' };
+    if (diff === 0) return { label: 'Due today', cls: 'due' };
+    if (diff === 1) return { label: 'Due tomorrow', cls: 'due' };
+    return { label: `Due ${dateStr}`, cls: 'due' };
+  } catch { return null; }
+}
+
+function renderBoard(items) {
+  const board = document.getElementById('board');
+  board.innerHTML = '';
+
+  if (!items.length) {
+    board.innerHTML = `<div class="empty-state">
+      <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+      <span>No tasks assigned to you.</span>
+    </div>`;
+    return;
+  }
+
+  // Group by status
+  const groups = {};
+  for (const item of items) {
+    if (!groups[item.status]) groups[item.status] = [];
+    groups[item.status].push(item);
+  }
+
+  // Sort groups: done/completed last
+  const sortedKeys = Object.keys(groups).sort((a, b) => {
+    const aD = /done|complet/i.test(a) ? 1 : 0;
+    const bD = /done|complet/i.test(b) ? 1 : 0;
+    return aD - bD || a.localeCompare(b);
+  });
+
+  for (const status of sortedKeys) {
+    const groupItems = groups[status];
+    const grp = document.createElement('div');
+    grp.className = 'group';
+
+    const hdr = document.createElement('div');
+    hdr.className = 'group-header';
+    hdr.innerHTML = `
+      <span class="status-dot" style="background:${statusColor(status)}"></span>
+      <span class="group-label">${status}</span>
+      <span class="group-count">${groupItems.length}</span>
+      <span class="chevron open">▶</span>`;
+
+    const cards = document.createElement('div');
+    cards.className = 'cards';
+
+    for (const item of groupItems) {
+      const due = formatDue(item.due);
+      const card = document.createElement('div');
+      card.className = 'card';
+      card.innerHTML = `
+        <div class="card-name">${escHtml(item.name)}</div>
+        <div class="card-meta">
+          <span class="meta-tag board" title="${escHtml(item.board)}">${escHtml(item.board)}</span>
+          ${due ? `<span class="meta-tag ${due.cls}">${due.label}</span>` : ''}
+        </div>`;
+      card.addEventListener('click', () => {
+        window.open(`https://monday.com/boards/${item.boardId}/items/${item.id}`, '_blank');
+      });
+      cards.appendChild(card);
+    }
+
+    hdr.addEventListener('click', () => {
+      const open = cards.style.display !== 'none';
+      cards.style.display = open ? 'none' : 'flex';
+      hdr.querySelector('.chevron').classList.toggle('open', !open);
+    });
+
+    grp.appendChild(hdr);
+    grp.appendChild(cards);
+    board.appendChild(grp);
+  }
+}
+
+function escHtml(s) {
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+async function load(token) {
+  document.getElementById('loading').style.display = 'flex';
+  document.getElementById('board').innerHTML = '';
+  try {
+    const me = await fetchMe(token);
+    const items = await fetchMyItems(token, me.id);
+    renderBoard(items);
+    const now = new Date();
+    document.getElementById('last-updated').textContent =
+      `Updated ${now.getHours()}:${String(now.getMinutes()).padStart(2,'0')}`;
+  } catch (e) {
+    document.getElementById('board').innerHTML = `<div class="empty-state" style="color:#d83a52">
+      <span>⚠ Error: ${escHtml(e.message)}</span>
+      <span style="font-size:11px;color:#999">Check your API token or network.</span>
+    </div>`;
+  } finally {
+    document.getElementById('loading').style.display = 'none';
+  }
+}
+
+// ── Event wiring ──
+document.getElementById('connect-btn').addEventListener('click', async () => {
+  const t = document.getElementById('token-input').value.trim();
+  if (!t) return;
+  document.getElementById('setup-err').textContent = 'Verifying…';
+  try {
+    await fetchMe(t);
+    saveToken(t);
+    showMain();
+    load(t);
+  } catch(e) {
+    document.getElementById('setup-err').textContent = 'Could not connect. Double-check your token.';
+  }
+});
+
+document.getElementById('token-input').addEventListener('keydown', e => {
+  if (e.key === 'Enter') document.getElementById('connect-btn').click();
+});
+
+document.getElementById('refresh-btn').addEventListener('click', () => load(getToken()));
+
+function logout() {
+  clearToken();
+  document.getElementById('token-input').value = '';
+  document.getElementById('setup-err').textContent = '';
+  showSetup();
+}
+document.getElementById('logout-btn').addEventListener('click', logout);
+document.getElementById('logout-link').addEventListener('click', logout);
+
+// ── Init ──
+const saved = getToken();
+if (saved) { showMain(); load(saved); }
+else showSetup();
+</script>
+</body>
+</html>
