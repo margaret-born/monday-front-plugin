@@ -299,27 +299,34 @@ async function fetchMe(token) {
   return d.me;
 }
 
-async function fetchMyItems(token, userId) {
-  // Fetch boards + columns first, then query items without server-side person filter
-  // (column IDs vary per board, so we filter client-side by people column type)
-  const d = await gql(`{
-    boards(limit: 100, state: active) {
-      id name
-      columns { id type settings_str }
-      items_page(limit: 500) {
-        items {
-          id name
-          column_values {
-            id type text value
-          }
-        }
-      }
-    }
+async function fetchMyItems(token, userId, onProgress) {
+  // First fetch just the board list (fast)
+  const boardList = await gql(`{
+    boards(limit: 50, state: active) { id name columns { id type settings_str } }
   }`, {}, token);
 
+  const boards = boardList.boards || [];
   const myItems = [];
-  for (const board of (d.boards || [])) {
-    // Find columns by type — don't assume fixed IDs
+
+  for (let i = 0; i < boards.length; i++) {
+    const board = boards[i];
+    onProgress(`Checking board ${i + 1} of ${boards.length}…`);
+
+    // Fetch items for this board individually
+    let boardData;
+    try {
+      boardData = await gql(`{
+        boards(ids: [${board.id}]) {
+          items_page(limit: 100) {
+            items {
+              id name
+              column_values { id type text value }
+            }
+          }
+        }
+      }`, {}, token);
+    } catch { continue; }
+
     const statusCol = (board.columns||[]).find(c => c.type === 'color');
     const dateColDef = (board.columns||[]).find(c => c.type === 'date' || c.type === 'timeline');
 
@@ -334,7 +341,9 @@ async function fetchMyItems(token, userId) {
       } catch {}
     }
 
-    for (const item of (board.items_page?.items || [])) {
+    for (const item of (boardData.boards?.[0]?.items_page?.items || [])) {
+
+
       // Find people column by type, filter to items assigned to this user
       const personCv = item.column_values.find(c => c.type === 'people');
       if (!personCv?.value) continue;
@@ -373,9 +382,10 @@ async function fetchMyItems(token, userId) {
 }
 
 async function updateStatus(token, itemId, boardId, colId, statusIndex) {
+  // Use change_simple_column_value with label string as fallback-safe approach
   await gql(
     `mutation($boardId:ID!,$itemId:ID!,$colId:String!,$val:JSON!){
-       change_column_value(board_id:$boardId,item_id:$itemId,column_id:$colId,value:$val){id}
+       change_column_value(board_id:$boardId,item_id:$itemId,column_id:$colId,value:$val,create_labels_if_missing:false){id}
      }`,
     { boardId: String(boardId), itemId: String(itemId), colId, val: JSON.stringify({ index: statusIndex }) },
     token
@@ -570,7 +580,10 @@ async function load(token) {
   document.getElementById('summary').textContent = '';
   try {
     const me = await fetchMe(token);
-    currentItems = await fetchMyItems(token, me.id);
+    currentItems = await fetchMyItems(token, me.id, msg => {
+      const el = document.querySelector('#loading span');
+      if (el) el.textContent = msg;
+    });
     renderBoard(currentItems, token);
     const now = new Date();
     document.getElementById('last-updated').textContent =
