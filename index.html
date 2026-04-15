@@ -320,7 +320,7 @@ async function fetchMyItems(token, userId, onProgress) {
   // Step 2: fetch items in batches of BATCH_SIZE using GraphQL aliases
   for (let bi = 0; bi < batches.length; bi++) {
     const batch = batches[bi];
-    onProgress(`Loading tasks… (batch ${bi + 1} of ${batches.length})`);
+    onProgress(`Loading tasks… ${Math.round(((bi + 1) / batches.length) * 100)}%`);
 
     // Build a multi-board query using aliases
     const aliasQueries = batch.map((b, i) =>
