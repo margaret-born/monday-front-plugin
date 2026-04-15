@@ -17,141 +17,130 @@
     flex-direction: column;
   }
 
-  /* ── Setup screen ── */
+  /* ── Setup ── */
   #setup {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    flex: 1;
-    padding: 24px;
-    gap: 12px;
+    display: flex; flex-direction: column;
+    justify-content: center; align-items: center;
+    flex: 1; padding: 24px; gap: 12px;
   }
   #setup h2 { font-size: 15px; font-weight: 600; }
   #setup p  { font-size: 12px; color: #676879; text-align: center; line-height: 1.5; }
   #setup input {
-    width: 100%;
-    padding: 8px 10px;
-    border: 1px solid #c3c6d4;
-    border-radius: 6px;
-    font-size: 13px;
-    outline: none;
+    width: 100%; padding: 8px 10px;
+    border: 1px solid #c3c6d4; border-radius: 6px;
+    font-size: 13px; outline: none;
   }
   #setup input:focus { border-color: #0073ea; }
   #setup button {
-    width: 100%;
-    padding: 9px;
-    background: #0073ea;
-    color: #fff;
-    border: none;
-    border-radius: 6px;
-    font-size: 13px;
-    font-weight: 600;
-    cursor: pointer;
+    width: 100%; padding: 9px;
+    background: #0073ea; color: #fff;
+    border: none; border-radius: 6px;
+    font-size: 13px; font-weight: 600; cursor: pointer;
   }
   #setup button:hover { background: #0060c0; }
   #setup .err { color: #d83a52; font-size: 12px; }
 
-  /* ── Main view ── */
+  /* ── Main ── */
   #main { display: none; flex-direction: column; flex: 1; overflow: hidden; }
 
   .topbar {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
+    display: flex; align-items: center; justify-content: space-between;
     padding: 10px 12px 8px;
-    border-bottom: 1px solid #e6e9ef;
-    background: #fff;
-    flex-shrink: 0;
+    border-bottom: 1px solid #e6e9ef; background: #fff; flex-shrink: 0;
   }
+  .topbar-left { display: flex; flex-direction: column; gap: 1px; }
   .topbar h1 { font-size: 14px; font-weight: 700; }
+  .topbar-summary { font-size: 11px; color: #676879; }
   .topbar-actions { display: flex; gap: 6px; }
   .icon-btn {
-    background: none;
-    border: none;
-    cursor: pointer;
-    color: #676879;
-    padding: 4px;
-    border-radius: 4px;
-    display: flex;
-    align-items: center;
+    background: none; border: none; cursor: pointer;
+    color: #676879; padding: 4px; border-radius: 4px;
+    display: flex; align-items: center;
   }
   .icon-btn:hover { background: #f0f2f8; color: #0073ea; }
+  .icon-btn.spinning svg { animation: spin .7s linear infinite; }
 
   #scroll { overflow-y: auto; flex: 1; padding: 10px 10px 20px; }
 
-  /* ── Status group ── */
+  /* ── Groups ── */
   .group { margin-bottom: 14px; }
   .group-header {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    padding: 4px 6px;
-    border-radius: 5px;
-    margin-bottom: 6px;
-    cursor: pointer;
-    user-select: none;
+    display: flex; align-items: center; gap: 6px;
+    padding: 4px 6px; border-radius: 5px; margin-bottom: 6px;
+    cursor: pointer; user-select: none;
   }
   .group-header:hover { background: rgba(0,0,0,.04); }
-  .status-dot {
-    width: 10px; height: 10px;
-    border-radius: 50%;
-    flex-shrink: 0;
-  }
+  .status-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
   .group-label { font-weight: 600; font-size: 12px; flex: 1; }
   .group-count {
-    font-size: 11px;
-    color: #676879;
-    background: #e6e9ef;
-    border-radius: 10px;
-    padding: 1px 6px;
+    font-size: 11px; color: #676879;
+    background: #e6e9ef; border-radius: 10px; padding: 1px 6px;
   }
-  .chevron {
-    font-size: 10px;
-    color: #676879;
-    transition: transform .15s;
-  }
+  .chevron { font-size: 10px; color: #676879; transition: transform .15s; }
   .chevron.open { transform: rotate(90deg); }
 
-  /* ── Task card ── */
+  /* ── Cards ── */
   .cards { display: flex; flex-direction: column; gap: 6px; }
   .card {
-    background: #fff;
-    border: 1px solid #e6e9ef;
-    border-radius: 8px;
-    padding: 9px 11px;
-    cursor: pointer;
+    background: #fff; border: 1px solid #e6e9ef;
+    border-radius: 8px; padding: 9px 11px;
     transition: box-shadow .12s, border-color .12s;
+    position: relative;
   }
-  .card:hover { border-color: #0073ea; box-shadow: 0 1px 6px rgba(0,115,234,.12); }
+  .card:hover { border-color: #c3c6d4; box-shadow: 0 1px 6px rgba(0,0,0,.07); }
 
+  .card-top {
+    display: flex; align-items: flex-start;
+    justify-content: space-between; gap: 6px; margin-bottom: 6px;
+  }
   .card-name {
-    font-weight: 500;
-    font-size: 13px;
-    line-height: 1.4;
-    margin-bottom: 5px;
-    word-break: break-word;
+    font-weight: 500; font-size: 13px; line-height: 1.4;
+    word-break: break-word; flex: 1; cursor: pointer;
   }
-  .card-meta {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 5px;
-    align-items: center;
-  }
+  .card-name:hover { color: #0073ea; text-decoration: underline; }
+
+  .card-meta { display: flex; flex-wrap: wrap; gap: 5px; align-items: center; }
   .meta-tag {
-    font-size: 11px;
-    background: #f0f2f8;
-    color: #676879;
-    border-radius: 4px;
-    padding: 2px 6px;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    max-width: 140px;
+    font-size: 11px; background: #f0f2f8; color: #676879;
+    border-radius: 4px; padding: 2px 6px;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 150px;
   }
-  .meta-tag.board { color: #0073ea; background: #e8f3fe; }
-  .meta-tag.due   { color: #c97d00; background: #fff3d6; }
-  .meta-tag.overdue { color: #d83a52; background: #fde8ec; }
+  .meta-tag.board  { color: #0073ea; background: #e8f3fe; }
+  .meta-tag.due    { color: #c97d00; background: #fff3d6; }
+  .meta-tag.overdue{ color: #d83a52; background: #fde8ec; }
+  .meta-tag.nodue  { color: #c3c6d4; background: #f6f7fb; font-style: italic; }
+
+  /* ── Status pill / dropdown ── */
+  .status-wrap { position: relative; flex-shrink: 0; }
+  .status-pill {
+    display: inline-flex; align-items: center; gap: 4px;
+    font-size: 11px; font-weight: 600;
+    padding: 3px 8px; border-radius: 20px;
+    cursor: pointer; border: none; outline: none;
+    white-space: nowrap; transition: filter .1s;
+    color: #fff;
+  }
+  .status-pill:hover { filter: brightness(0.9); }
+  .status-pill .pill-caret { font-size: 8px; opacity: .8; }
+  .status-pill.saving { opacity: .6; pointer-events: none; }
+
+  .status-dropdown {
+    position: absolute; right: 0; top: calc(100% + 4px);
+    background: #fff; border: 1px solid #e6e9ef;
+    border-radius: 8px; box-shadow: 0 4px 16px rgba(0,0,0,.12);
+    z-index: 100; min-width: 160px; max-height: 220px;
+    overflow-y: auto; padding: 4px;
+    display: none;
+  }
+  .status-dropdown.open { display: block; }
+  .status-option {
+    display: flex; align-items: center; gap: 8px;
+    padding: 7px 10px; border-radius: 5px;
+    cursor: pointer; font-size: 12px;
+  }
+  .status-option:hover { background: #f0f2f8; }
+  .status-option .opt-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+  .status-option.current { font-weight: 600; }
 
   /* ── States ── */
   .empty-state, .loading {
@@ -160,54 +149,52 @@
     gap: 8px; padding: 40px 20px;
     color: #676879; font-size: 12px; text-align: center;
   }
-  .empty-state svg, .loading svg { opacity: .4; }
   .spinner {
     width: 28px; height: 28px;
-    border: 3px solid #e6e9ef;
-    border-top-color: #0073ea;
-    border-radius: 50%;
-    animation: spin .7s linear infinite;
+    border: 3px solid #e6e9ef; border-top-color: #0073ea;
+    border-radius: 50%; animation: spin .7s linear infinite;
   }
   @keyframes spin { to { transform: rotate(360deg); } }
 
   .footer {
-    padding: 6px 12px;
-    font-size: 11px;
-    color: #c3c6d4;
-    text-align: right;
-    flex-shrink: 0;
-    border-top: 1px solid #e6e9ef;
-    background: #fff;
+    padding: 6px 12px; font-size: 11px; color: #c3c6d4;
+    text-align: right; flex-shrink: 0;
+    border-top: 1px solid #e6e9ef; background: #fff;
   }
-  .footer a {
-    color: #c3c6d4;
-    text-decoration: none;
-    cursor: pointer;
-    font-size: 10px;
-  }
+  .footer a { color: #c3c6d4; text-decoration: none; cursor: pointer; font-size: 10px; }
   .footer a:hover { color: #d83a52; }
+
+  .toast {
+    position: fixed; bottom: 36px; left: 50%; transform: translateX(-50%);
+    background: #323338; color: #fff; font-size: 12px;
+    padding: 7px 14px; border-radius: 20px;
+    opacity: 0; transition: opacity .2s; pointer-events: none; white-space: nowrap;
+    z-index: 999;
+  }
+  .toast.show { opacity: 1; }
 </style>
 </head>
 <body>
 
-<!-- ── Setup ── -->
 <div id="setup">
   <svg width="36" height="36" viewBox="0 0 36 36" fill="none">
     <rect width="36" height="36" rx="8" fill="#0073EA"/>
     <path d="M9 18l6 6 12-12" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
   </svg>
   <h2>Connect Monday.com</h2>
-  <p>Enter your Monday API token to view your assigned tasks here in Front.</p>
+  <p>Enter your Monday API token to view and update your assigned tasks directly from Front.</p>
   <input id="token-input" type="password" placeholder="API token (starts with eyJ…)" autocomplete="off"/>
   <button id="connect-btn">Connect</button>
   <span id="setup-err" class="err"></span>
   <p style="font-size:11px;color:#c3c6d4">Get your token: Monday → Profile photo → Admin → API</p>
 </div>
 
-<!-- ── Main ── -->
 <div id="main">
   <div class="topbar">
-    <h1>My Work</h1>
+    <div class="topbar-left">
+      <h1>My Work</h1>
+      <span class="topbar-summary" id="summary"></span>
+    </div>
     <div class="topbar-actions">
       <button class="icon-btn" id="refresh-btn" title="Refresh">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
@@ -225,28 +212,37 @@
     <div class="loading" id="loading"><div class="spinner"></div><span>Loading your tasks…</span></div>
     <div id="board"></div>
   </div>
-  <div class="footer" id="footer">
+  <div class="footer">
     <span id="last-updated"></span> &nbsp;·&nbsp; <a id="logout-link">Disconnect</a>
   </div>
 </div>
+
+<div class="toast" id="toast"></div>
 
 <script>
 const API = 'https://api.monday.com/v2';
 const STORAGE_KEY = 'monday_api_token';
 
-// Status colour map (covers common Monday defaults)
+// Close any open dropdown when clicking outside
+document.addEventListener('click', e => {
+  if (!e.target.closest('.status-wrap')) closeAllDropdowns();
+});
+
+function closeAllDropdowns() {
+  document.querySelectorAll('.status-dropdown.open').forEach(d => d.classList.remove('open'));
+}
+
+// Status colour palette
 const STATUS_COLORS = {
   'done': '#00c875', 'completed': '#00c875',
   'working on it': '#fdab3d', 'in progress': '#fdab3d',
   'stuck': '#e2445c', 'blocked': '#e2445c',
-  'waiting for review': '#a25ddc',
-  'pending review': '#a25ddc',
+  'waiting for review': '#a25ddc', 'pending review': '#a25ddc',
   'not started': '#c4c4c4', '': '#c4c4c4',
   'default': '#0073ea'
 };
-
 function statusColor(label) {
-  return STATUS_COLORS[(label || '').toLowerCase()] || STATUS_COLORS.default;
+  return STATUS_COLORS[(label||'').toLowerCase()] || STATUS_COLORS.default;
 }
 
 function getToken() { return localStorage.getItem(STORAGE_KEY); }
@@ -263,11 +259,17 @@ function showMain() {
   document.getElementById('main').style.display = 'flex';
 }
 
-async function query(gql, token) {
+function showToast(msg, duration = 2000) {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), duration);
+}
+
+async function gql(query, variables, token) {
   const r = await fetch(API, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json', 'Authorization': token, 'API-Version': '2024-01' },
-    body: JSON.stringify({ query: gql })
+    body: JSON.stringify({ query, variables })
   });
   if (!r.ok) throw new Error(`HTTP ${r.status}`);
   const j = await r.json();
@@ -276,15 +278,16 @@ async function query(gql, token) {
 }
 
 async function fetchMe(token) {
-  const d = await query(`{ me { id name } }`, token);
+  const d = await gql(`{ me { id name } }`, {}, token);
   return d.me;
 }
 
 async function fetchMyItems(token, userId) {
-  // Fetch boards the user has access to, then filter items assigned to them
-  const d = await query(`{
+  // Fetch boards + items + status column settings (for the dropdown options)
+  const d = await gql(`{
     boards(limit: 50, state: active) {
       id name
+      columns { id type title settings_str }
       items_page(limit: 100) {
         items {
           id name
@@ -294,14 +297,26 @@ async function fetchMyItems(token, userId) {
         }
       }
     }
-  }`, token);
+  }`, {}, token);
 
   const myItems = [];
   for (const board of (d.boards || [])) {
+    // Parse status options from this board's column settings
+    const statusCol = (board.columns || []).find(c => c.type === 'color');
+    let statusOptions = [];
+    if (statusCol?.settings_str) {
+      try {
+        const s = JSON.parse(statusCol.settings_str);
+        statusOptions = Object.entries(s.labels || {}).map(([idx, label]) => ({
+          index: parseInt(idx), label,
+          color: s.labels_colors?.[idx]?.color || statusColor(label)
+        }));
+      } catch {}
+    }
+
     for (const item of (board.items_page?.items || [])) {
-      // Check if this user is assigned (person column)
       const personCol = item.column_values.find(c => c.type === 'people');
-      if (!personCol || !personCol.value) continue;
+      if (!personCol?.value) continue;
       let assigned = false;
       try {
         const v = JSON.parse(personCol.value);
@@ -309,25 +324,40 @@ async function fetchMyItems(token, userId) {
       } catch { continue; }
       if (!assigned) continue;
 
-      // Status
-      const statusCol = item.column_values.find(c => c.type === 'color');
-      const status = statusCol?.text || 'No Status';
+      const sCv = item.column_values.find(c => c.type === 'color');
+      const status = sCv?.text || 'No Status';
+      // Find current index for mutation
+      const currentOpt = statusOptions.find(o => o.label === status);
+      const statusIndex = currentOpt?.index ?? null;
 
-      // Due date — try common column IDs
-      const dateCol = item.column_values.find(c =>
-        (c.type === 'date' || c.type === 'timeline') && c.text
-      );
+      const dateCol = item.column_values.find(c => (c.type === 'date' || c.type === 'timeline') && c.text);
       let due = null;
       if (dateCol?.text) {
-        // timeline returns "YYYY-MM-DD - YYYY-MM-DD", grab last date
         const parts = dateCol.text.split(' - ');
         due = parts[parts.length - 1].trim();
       }
 
-      myItems.push({ id: item.id, name: item.name, board: board.name, boardId: board.id, status, due });
+      myItems.push({
+        id: item.id, name: item.name,
+        board: board.name, boardId: board.id,
+        status, statusIndex,
+        statusColId: statusCol?.id || 'status',
+        statusOptions,
+        due
+      });
     }
   }
   return myItems;
+}
+
+async function updateStatus(token, itemId, boardId, colId, statusIndex) {
+  await gql(
+    `mutation($boardId: ID!, $itemId: ID!, $colId: String!, $val: JSON!) {
+       change_column_value(board_id: $boardId, item_id: $itemId, column_id: $colId, value: $val) { id }
+     }`,
+    { boardId: String(boardId), itemId: String(itemId), colId, val: JSON.stringify({ index: statusIndex }) },
+    token
+  );
 }
 
 function formatDue(dateStr) {
@@ -336,19 +366,84 @@ function formatDue(dateStr) {
     const d = new Date(dateStr + 'T00:00:00');
     const today = new Date(); today.setHours(0,0,0,0);
     const diff = Math.round((d - today) / 86400000);
-    if (diff < 0)  return { label: `Overdue · ${dateStr}`, cls: 'overdue' };
+    if (diff < 0)   return { label: `Overdue · ${dateStr}`, cls: 'overdue' };
     if (diff === 0) return { label: 'Due today', cls: 'due' };
     if (diff === 1) return { label: 'Due tomorrow', cls: 'due' };
     return { label: `Due ${dateStr}`, cls: 'due' };
   } catch { return null; }
 }
 
-function renderBoard(items) {
-  const board = document.getElementById('board');
-  board.innerHTML = '';
+function escHtml(s) {
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function buildStatusPill(item, token, onStatusChange) {
+  const wrap = document.createElement('div');
+  wrap.className = 'status-wrap';
+
+  const pill = document.createElement('button');
+  pill.className = 'status-pill';
+  pill.style.background = statusColor(item.status);
+  pill.innerHTML = `${escHtml(item.status)} <span class="pill-caret">▾</span>`;
+
+  const dropdown = document.createElement('div');
+  dropdown.className = 'status-dropdown';
+
+  for (const opt of item.statusOptions) {
+    const row = document.createElement('div');
+    row.className = 'status-option' + (opt.label === item.status ? ' current' : '');
+    row.innerHTML = `<span class="opt-dot" style="background:${opt.color}"></span>${escHtml(opt.label)}`;
+    row.addEventListener('click', async e => {
+      e.stopPropagation();
+      if (opt.label === item.status) { dropdown.classList.remove('open'); return; }
+      dropdown.classList.remove('open');
+      pill.classList.add('saving');
+      pill.innerHTML = `Saving… <span class="pill-caret">▾</span>`;
+      try {
+        await updateStatus(token, item.id, item.boardId, item.statusColId, opt.index);
+        item.status = opt.label;
+        item.statusIndex = opt.index;
+        pill.style.background = opt.color;
+        pill.innerHTML = `${escHtml(opt.label)} <span class="pill-caret">▾</span>`;
+        // Update current marker in dropdown
+        dropdown.querySelectorAll('.status-option').forEach(r => r.classList.remove('current'));
+        row.classList.add('current');
+        showToast('✓ Status updated');
+        onStatusChange(item);
+      } catch(err) {
+        pill.innerHTML = `${escHtml(item.status)} <span class="pill-caret">▾</span>`;
+        showToast('⚠ Could not update status', 3000);
+      } finally {
+        pill.classList.remove('saving');
+      }
+    });
+    dropdown.appendChild(row);
+  }
+
+  pill.addEventListener('click', e => {
+    e.stopPropagation();
+    const wasOpen = dropdown.classList.contains('open');
+    closeAllDropdowns();
+    if (!wasOpen) dropdown.classList.add('open');
+  });
+
+  wrap.appendChild(pill);
+  wrap.appendChild(dropdown);
+  return wrap;
+}
+
+function renderBoard(items, token) {
+  const boardEl = document.getElementById('board');
+  boardEl.innerHTML = '';
+
+  // Summary
+  const boardNames = new Set(items.map(i => i.board));
+  document.getElementById('summary').textContent = items.length
+    ? `${items.length} task${items.length !== 1 ? 's' : ''} across ${boardNames.size} board${boardNames.size !== 1 ? 's' : ''}`
+    : '';
 
   if (!items.length) {
-    board.innerHTML = `<div class="empty-state">
+    boardEl.innerHTML = `<div class="empty-state">
       <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
       <span>No tasks assigned to you.</span>
     </div>`;
@@ -362,7 +457,6 @@ function renderBoard(items) {
     groups[item.status].push(item);
   }
 
-  // Sort groups: done/completed last
   const sortedKeys = Object.keys(groups).sort((a, b) => {
     const aD = /done|complet/i.test(a) ? 1 : 0;
     const bD = /done|complet/i.test(b) ? 1 : 0;
@@ -370,7 +464,7 @@ function renderBoard(items) {
   });
 
   for (const status of sortedKeys) {
-    const groupItems = groups[status];
+    const grpItems = groups[status];
     const grp = document.createElement('div');
     grp.className = 'group';
 
@@ -378,26 +472,52 @@ function renderBoard(items) {
     hdr.className = 'group-header';
     hdr.innerHTML = `
       <span class="status-dot" style="background:${statusColor(status)}"></span>
-      <span class="group-label">${status}</span>
-      <span class="group-count">${groupItems.length}</span>
+      <span class="group-label">${escHtml(status)}</span>
+      <span class="group-count">${grpItems.length}</span>
       <span class="chevron open">▶</span>`;
 
     const cards = document.createElement('div');
     cards.className = 'cards';
 
-    for (const item of groupItems) {
+    for (const item of grpItems) {
       const due = formatDue(item.due);
       const card = document.createElement('div');
       card.className = 'card';
-      card.innerHTML = `
-        <div class="card-name">${escHtml(item.name)}</div>
-        <div class="card-meta">
-          <span class="meta-tag board" title="${escHtml(item.board)}">${escHtml(item.board)}</span>
-          ${due ? `<span class="meta-tag ${due.cls}">${due.label}</span>` : ''}
-        </div>`;
-      card.addEventListener('click', () => {
+      card.dataset.itemId = item.id;
+
+      const top = document.createElement('div');
+      top.className = 'card-top';
+
+      const name = document.createElement('div');
+      name.className = 'card-name';
+      name.textContent = item.name;
+      name.title = 'Open in Monday';
+      name.addEventListener('click', () => {
         window.open(`https://monday.com/boards/${item.boardId}/items/${item.id}`, '_blank');
       });
+
+      top.appendChild(name);
+
+      if (item.statusOptions.length > 0) {
+        const pill = buildStatusPill(item, token, updatedItem => {
+          // Re-render when status changes (card may move group)
+          renderBoard(items, token);
+        });
+        top.appendChild(pill);
+      }
+
+      const meta = document.createElement('div');
+      meta.className = 'card-meta';
+      meta.innerHTML = `<span class="meta-tag board" title="${escHtml(item.board)}">${escHtml(item.board)}</span>`;
+
+      if (due) {
+        meta.innerHTML += `<span class="meta-tag ${due.cls}">${due.label}</span>`;
+      } else {
+        meta.innerHTML += `<span class="meta-tag nodue">No due date</span>`;
+      }
+
+      card.appendChild(top);
+      card.appendChild(meta);
       cards.appendChild(card);
     }
 
@@ -409,45 +529,43 @@ function renderBoard(items) {
 
     grp.appendChild(hdr);
     grp.appendChild(cards);
-    board.appendChild(grp);
+    boardEl.appendChild(grp);
   }
-}
-
-function escHtml(s) {
-  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 }
 
 async function load(token) {
+  const btn = document.getElementById('refresh-btn');
+  btn.classList.add('spinning');
   document.getElementById('loading').style.display = 'flex';
   document.getElementById('board').innerHTML = '';
+  document.getElementById('summary').textContent = '';
   try {
     const me = await fetchMe(token);
     const items = await fetchMyItems(token, me.id);
-    renderBoard(items);
+    renderBoard(items, token);
     const now = new Date();
     document.getElementById('last-updated').textContent =
       `Updated ${now.getHours()}:${String(now.getMinutes()).padStart(2,'0')}`;
-  } catch (e) {
+  } catch(e) {
     document.getElementById('board').innerHTML = `<div class="empty-state" style="color:#d83a52">
-      <span>⚠ Error: ${escHtml(e.message)}</span>
-      <span style="font-size:11px;color:#999">Check your API token or network.</span>
+      <span>⚠ ${escHtml(e.message)}</span>
+      <span style="font-size:11px;color:#999">Check your token or network.</span>
     </div>`;
   } finally {
     document.getElementById('loading').style.display = 'none';
+    btn.classList.remove('spinning');
   }
 }
 
-// ── Event wiring ──
+// ── Wiring ──
 document.getElementById('connect-btn').addEventListener('click', async () => {
   const t = document.getElementById('token-input').value.trim();
   if (!t) return;
   document.getElementById('setup-err').textContent = 'Verifying…';
   try {
     await fetchMe(t);
-    saveToken(t);
-    showMain();
-    load(t);
-  } catch(e) {
+    saveToken(t); showMain(); load(t);
+  } catch {
     document.getElementById('setup-err').textContent = 'Could not connect. Double-check your token.';
   }
 });
@@ -469,8 +587,7 @@ document.getElementById('logout-link').addEventListener('click', logout);
 
 // ── Init ──
 const saved = getToken();
-if (saved) { showMain(); load(saved); }
-else showSetup();
+if (saved) { showMain(); load(saved); } else showSetup();
 </script>
 </body>
 </html>
