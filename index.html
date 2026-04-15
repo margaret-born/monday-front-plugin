@@ -327,7 +327,7 @@ async function fetchMyItems(token, userId, onProgress) {
       }`, {}, token);
     } catch { continue; }
 
-    const statusCol = (board.columns||[]).find(c => c.type === 'color');
+    const statusCol = (board.columns||[]).find(c => c.type === 'color' || c.type === 'status');
     const dateColDef = (board.columns||[]).find(c => c.type === 'date' || c.type === 'timeline');
 
     let statusOptions = [];
@@ -354,8 +354,8 @@ async function fetchMyItems(token, userId, onProgress) {
       } catch { continue; }
       if (!assigned) continue;
 
-      // Status — find by type
-      const sCv = item.column_values.find(c => c.type === 'color');
+      // Status — find by type (API returns 'color' or 'status' depending on version)
+      const sCv = item.column_values.find(c => c.type === 'color' || c.type === 'status');
       const status = sCv?.text || 'No Status';
       const currentOpt = statusOptions.find(o => o.label === status);
 
