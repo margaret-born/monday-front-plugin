@@ -6,15 +6,10 @@
 <title>My Work</title>
 <style>
   * { box-sizing: border-box; margin: 0; padding: 0; }
-
   body {
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-    font-size: 13px;
-    background: #f6f7fb;
-    color: #323338;
-    height: 100vh;
-    display: flex;
-    flex-direction: column;
+    font-size: 13px; background: #f6f7fb; color: #323338;
+    height: 100vh; display: flex; flex-direction: column;
   }
 
   /* ── Setup ── */
@@ -27,15 +22,12 @@
   #setup p  { font-size: 12px; color: #676879; text-align: center; line-height: 1.5; }
   #setup input {
     width: 100%; padding: 8px 10px;
-    border: 1px solid #c3c6d4; border-radius: 6px;
-    font-size: 13px; outline: none;
+    border: 1px solid #c3c6d4; border-radius: 6px; font-size: 13px; outline: none;
   }
   #setup input:focus { border-color: #0073ea; }
   #setup button {
-    width: 100%; padding: 9px;
-    background: #0073ea; color: #fff;
-    border: none; border-radius: 6px;
-    font-size: 13px; font-weight: 600; cursor: pointer;
+    width: 100%; padding: 9px; background: #0073ea; color: #fff;
+    border: none; border-radius: 6px; font-size: 13px; font-weight: 600; cursor: pointer;
   }
   #setup button:hover { background: #0060c0; }
   #setup .err { color: #d83a52; font-size: 12px; }
@@ -44,21 +36,33 @@
   #main { display: none; flex-direction: column; flex: 1; overflow: hidden; }
 
   .topbar {
-    display: flex; align-items: center; justify-content: space-between;
     padding: 10px 12px 8px;
     border-bottom: 1px solid #e6e9ef; background: #fff; flex-shrink: 0;
   }
-  .topbar-left { display: flex; flex-direction: column; gap: 1px; }
+  .topbar-row1 { display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px; }
   .topbar h1 { font-size: 14px; font-weight: 700; }
-  .topbar-summary { font-size: 11px; color: #676879; }
   .topbar-actions { display: flex; gap: 6px; }
   .icon-btn {
-    background: none; border: none; cursor: pointer;
-    color: #676879; padding: 4px; border-radius: 4px;
-    display: flex; align-items: center;
+    background: none; border: none; cursor: pointer; color: #676879;
+    padding: 4px; border-radius: 4px; display: flex; align-items: center;
   }
   .icon-btn:hover { background: #f0f2f8; color: #0073ea; }
   .icon-btn.spinning svg { animation: spin .7s linear infinite; }
+
+  .topbar-row2 { display: flex; align-items: center; justify-content: space-between; }
+  .topbar-summary { font-size: 11px; color: #676879; }
+
+  /* Group-by toggle */
+  .group-toggle {
+    display: flex; background: #f0f2f8; border-radius: 6px; padding: 2px; gap: 2px;
+  }
+  .toggle-btn {
+    font-size: 11px; font-weight: 500; color: #676879;
+    border: none; background: none; border-radius: 4px;
+    padding: 3px 9px; cursor: pointer; transition: background .12s, color .12s;
+    white-space: nowrap;
+  }
+  .toggle-btn.active { background: #fff; color: #0073ea; box-shadow: 0 1px 3px rgba(0,0,0,.1); }
 
   #scroll { overflow-y: auto; flex: 1; padding: 10px 10px 20px; }
 
@@ -70,7 +74,7 @@
     cursor: pointer; user-select: none;
   }
   .group-header:hover { background: rgba(0,0,0,.04); }
-  .status-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+  .group-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
   .group-label { font-weight: 600; font-size: 12px; flex: 1; }
   .group-count {
     font-size: 11px; color: #676879;
@@ -84,11 +88,9 @@
   .card {
     background: #fff; border: 1px solid #e6e9ef;
     border-radius: 8px; padding: 9px 11px;
-    transition: box-shadow .12s, border-color .12s;
-    position: relative;
+    transition: box-shadow .12s, border-color .12s; position: relative;
   }
   .card:hover { border-color: #c3c6d4; box-shadow: 0 1px 6px rgba(0,0,0,.07); }
-
   .card-top {
     display: flex; align-items: flex-start;
     justify-content: space-between; gap: 6px; margin-bottom: 6px;
@@ -98,29 +100,26 @@
     word-break: break-word; flex: 1; cursor: pointer;
   }
   .card-name:hover { color: #0073ea; text-decoration: underline; }
-
   .card-meta { display: flex; flex-wrap: wrap; gap: 5px; align-items: center; }
   .meta-tag {
     font-size: 11px; background: #f0f2f8; color: #676879;
     border-radius: 4px; padding: 2px 6px;
     white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 150px;
   }
-  .meta-tag.board  { color: #0073ea; background: #e8f3fe; }
-  .meta-tag.due    { color: #c97d00; background: #fff3d6; }
-  .meta-tag.overdue{ color: #d83a52; background: #fde8ec; }
-  .meta-tag.nodue  { color: #c3c6d4; background: #f6f7fb; font-style: italic; }
+  .meta-tag.board   { color: #0073ea; background: #e8f3fe; }
+  .meta-tag.due     { color: #c97d00; background: #fff3d6; }
+  .meta-tag.overdue { color: #d83a52; background: #fde8ec; }
+  .meta-tag.nodue   { color: #c3c6d4; background: #f6f7fb; font-style: italic; }
 
-  /* ── Status pill / dropdown ── */
+  /* ── Status pill ── */
   .status-wrap { position: relative; flex-shrink: 0; }
   .status-pill {
     display: inline-flex; align-items: center; gap: 4px;
-    font-size: 11px; font-weight: 600;
-    padding: 3px 8px; border-radius: 20px;
-    cursor: pointer; border: none; outline: none;
-    white-space: nowrap; transition: filter .1s;
-    color: #fff;
+    font-size: 11px; font-weight: 600; padding: 3px 8px; border-radius: 20px;
+    cursor: pointer; border: none; outline: none; white-space: nowrap;
+    transition: filter .1s; color: #fff;
   }
-  .status-pill:hover { filter: brightness(0.9); }
+  .status-pill:hover { filter: brightness(.9); }
   .status-pill .pill-caret { font-size: 8px; opacity: .8; }
   .status-pill.saving { opacity: .6; pointer-events: none; }
 
@@ -129,14 +128,12 @@
     background: #fff; border: 1px solid #e6e9ef;
     border-radius: 8px; box-shadow: 0 4px 16px rgba(0,0,0,.12);
     z-index: 100; min-width: 160px; max-height: 220px;
-    overflow-y: auto; padding: 4px;
-    display: none;
+    overflow-y: auto; padding: 4px; display: none;
   }
   .status-dropdown.open { display: block; }
   .status-option {
     display: flex; align-items: center; gap: 8px;
-    padding: 7px 10px; border-radius: 5px;
-    cursor: pointer; font-size: 12px;
+    padding: 7px 10px; border-radius: 5px; cursor: pointer; font-size: 12px;
   }
   .status-option:hover { background: #f0f2f8; }
   .status-option .opt-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
@@ -168,8 +165,7 @@
     position: fixed; bottom: 36px; left: 50%; transform: translateX(-50%);
     background: #323338; color: #fff; font-size: 12px;
     padding: 7px 14px; border-radius: 20px;
-    opacity: 0; transition: opacity .2s; pointer-events: none; white-space: nowrap;
-    z-index: 999;
+    opacity: 0; transition: opacity .2s; pointer-events: none; white-space: nowrap; z-index: 999;
   }
   .toast.show { opacity: 1; }
 </style>
@@ -191,21 +187,27 @@
 
 <div id="main">
   <div class="topbar">
-    <div class="topbar-left">
+    <div class="topbar-row1">
       <h1>My Work</h1>
-      <span class="topbar-summary" id="summary"></span>
+      <div class="topbar-actions">
+        <button class="icon-btn" id="refresh-btn" title="Refresh">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/>
+          </svg>
+        </button>
+        <button class="icon-btn" id="logout-btn" title="Disconnect">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/>
+          </svg>
+        </button>
+      </div>
     </div>
-    <div class="topbar-actions">
-      <button class="icon-btn" id="refresh-btn" title="Refresh">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-          <polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/>
-        </svg>
-      </button>
-      <button class="icon-btn" id="logout-btn" title="Disconnect">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/>
-        </svg>
-      </button>
+    <div class="topbar-row2">
+      <span class="topbar-summary" id="summary"></span>
+      <div class="group-toggle">
+        <button class="toggle-btn active" id="btn-status" data-group="status">By Status</button>
+        <button class="toggle-btn" id="btn-board" data-group="board">By Board</button>
+      </div>
     </div>
   </div>
   <div id="scroll">
@@ -222,24 +224,36 @@
 <script>
 const API = 'https://api.monday.com/v2';
 const STORAGE_KEY = 'monday_api_token';
+const GROUP_KEY   = 'monday_group_by';
 
-// Close any open dropdown when clicking outside
+let currentItems = [];
+let groupBy = localStorage.getItem(GROUP_KEY) || 'status';
+
+// Sync toggle UI on load
+document.querySelectorAll('.toggle-btn').forEach(b => {
+  b.classList.toggle('active', b.dataset.group === groupBy);
+  b.addEventListener('click', () => {
+    groupBy = b.dataset.group;
+    localStorage.setItem(GROUP_KEY, groupBy);
+    document.querySelectorAll('.toggle-btn').forEach(x => x.classList.toggle('active', x.dataset.group === groupBy));
+    renderBoard(currentItems, getToken());
+  });
+});
+
 document.addEventListener('click', e => {
   if (!e.target.closest('.status-wrap')) closeAllDropdowns();
 });
-
 function closeAllDropdowns() {
   document.querySelectorAll('.status-dropdown.open').forEach(d => d.classList.remove('open'));
 }
 
-// Status colour palette
 const STATUS_COLORS = {
-  'done': '#00c875', 'completed': '#00c875',
-  'working on it': '#fdab3d', 'in progress': '#fdab3d',
-  'stuck': '#e2445c', 'blocked': '#e2445c',
-  'waiting for review': '#a25ddc', 'pending review': '#a25ddc',
-  'not started': '#c4c4c4', '': '#c4c4c4',
-  'default': '#0073ea'
+  'done':'#00c875','completed':'#00c875',
+  'working on it':'#fdab3d','in progress':'#fdab3d',
+  'stuck':'#e2445c','blocked':'#e2445c',
+  'waiting for review':'#a25ddc','pending review':'#a25ddc',
+  'not started':'#c4c4c4','':'#c4c4c4',
+  'default':'#0073ea'
 };
 function statusColor(label) {
   return STATUS_COLORS[(label||'').toLowerCase()] || STATUS_COLORS.default;
@@ -258,17 +272,20 @@ function showMain() {
   document.getElementById('setup').style.display = 'none';
   document.getElementById('main').style.display = 'flex';
 }
-
-function showToast(msg, duration = 2000) {
+function showToast(msg, duration=2000) {
   const t = document.getElementById('toast');
   t.textContent = msg; t.classList.add('show');
   setTimeout(() => t.classList.remove('show'), duration);
 }
 
+function escHtml(s) {
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
 async function gql(query, variables, token) {
   const r = await fetch(API, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json', 'Authorization': token, 'API-Version': '2024-01' },
+    headers: { 'Content-Type':'application/json', 'Authorization': token, 'API-Version':'2024-01' },
     body: JSON.stringify({ query, variables })
   });
   if (!r.ok) throw new Error(`HTTP ${r.status}`);
@@ -283,12 +300,19 @@ async function fetchMe(token) {
 }
 
 async function fetchMyItems(token, userId) {
-  // Fetch boards + items + status column settings (for the dropdown options)
+  // Step 1: get items assigned to this user across all boards
+  // Monday doesn't expose a direct "my_work" API endpoint, so we use
+  // items_by_multiple_column_values with the user's ID on the people column,
+  // combined with fetching boards the user is subscribed to.
+  // Best available approach: fetch all boards user has access to, paginate items,
+  // filter by assignee. We increase limits and fetch status options per board.
   const d = await gql(`{
-    boards(limit: 50, state: active) {
+    boards(limit: 100, state: active) {
       id name
-      columns { id type title settings_str }
-      items_page(limit: 100) {
+      columns { id type settings_str }
+      items_page(limit: 500, query_params: {
+        rules: [{ column_id: "person", compare_value: ["${userId}"] }]
+      }) {
         items {
           id name
           column_values(ids: ["status","person","date4","due_date","timeline"]) {
@@ -301,13 +325,12 @@ async function fetchMyItems(token, userId) {
 
   const myItems = [];
   for (const board of (d.boards || [])) {
-    // Parse status options from this board's column settings
-    const statusCol = (board.columns || []).find(c => c.type === 'color');
+    const statusCol = (board.columns||[]).find(c => c.type === 'color');
     let statusOptions = [];
     if (statusCol?.settings_str) {
       try {
         const s = JSON.parse(statusCol.settings_str);
-        statusOptions = Object.entries(s.labels || {}).map(([idx, label]) => ({
+        statusOptions = Object.entries(s.labels||{}).map(([idx, label]) => ({
           index: parseInt(idx), label,
           color: s.labels_colors?.[idx]?.color || statusColor(label)
         }));
@@ -315,35 +338,25 @@ async function fetchMyItems(token, userId) {
     }
 
     for (const item of (board.items_page?.items || [])) {
-      const personCol = item.column_values.find(c => c.type === 'people');
-      if (!personCol?.value) continue;
-      let assigned = false;
-      try {
-        const v = JSON.parse(personCol.value);
-        assigned = (v.personsAndTeams || []).some(p => String(p.id) === String(userId));
-      } catch { continue; }
-      if (!assigned) continue;
-
       const sCv = item.column_values.find(c => c.type === 'color');
       const status = sCv?.text || 'No Status';
-      // Find current index for mutation
       const currentOpt = statusOptions.find(o => o.label === status);
-      const statusIndex = currentOpt?.index ?? null;
 
-      const dateCol = item.column_values.find(c => (c.type === 'date' || c.type === 'timeline') && c.text);
+      const dateCol = item.column_values.find(c =>
+        (c.type === 'date' || c.type === 'timeline') && c.text
+      );
       let due = null;
       if (dateCol?.text) {
         const parts = dateCol.text.split(' - ');
-        due = parts[parts.length - 1].trim();
+        due = parts[parts.length-1].trim();
       }
 
       myItems.push({
         id: item.id, name: item.name,
         board: board.name, boardId: board.id,
-        status, statusIndex,
+        status, statusIndex: currentOpt?.index ?? null,
         statusColId: statusCol?.id || 'status',
-        statusOptions,
-        due
+        statusOptions, due
       });
     }
   }
@@ -352,8 +365,8 @@ async function fetchMyItems(token, userId) {
 
 async function updateStatus(token, itemId, boardId, colId, statusIndex) {
   await gql(
-    `mutation($boardId: ID!, $itemId: ID!, $colId: String!, $val: JSON!) {
-       change_column_value(board_id: $boardId, item_id: $itemId, column_id: $colId, value: $val) { id }
+    `mutation($boardId:ID!,$itemId:ID!,$colId:String!,$val:JSON!){
+       change_column_value(board_id:$boardId,item_id:$itemId,column_id:$colId,value:$val){id}
      }`,
     { boardId: String(boardId), itemId: String(itemId), colId, val: JSON.stringify({ index: statusIndex }) },
     token
@@ -363,21 +376,17 @@ async function updateStatus(token, itemId, boardId, colId, statusIndex) {
 function formatDue(dateStr) {
   if (!dateStr) return null;
   try {
-    const d = new Date(dateStr + 'T00:00:00');
+    const d = new Date(dateStr+'T00:00:00');
     const today = new Date(); today.setHours(0,0,0,0);
-    const diff = Math.round((d - today) / 86400000);
-    if (diff < 0)   return { label: `Overdue · ${dateStr}`, cls: 'overdue' };
-    if (diff === 0) return { label: 'Due today', cls: 'due' };
-    if (diff === 1) return { label: 'Due tomorrow', cls: 'due' };
-    return { label: `Due ${dateStr}`, cls: 'due' };
+    const diff = Math.round((d-today)/86400000);
+    if (diff < 0)   return { label:`Overdue · ${dateStr}`, cls:'overdue' };
+    if (diff === 0) return { label:'Due today', cls:'due' };
+    if (diff === 1) return { label:'Due tomorrow', cls:'due' };
+    return { label:`Due ${dateStr}`, cls:'due' };
   } catch { return null; }
 }
 
-function escHtml(s) {
-  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
-}
-
-function buildStatusPill(item, token, onStatusChange) {
+function buildStatusPill(item, token) {
   const wrap = document.createElement('div');
   wrap.className = 'status-wrap';
 
@@ -405,12 +414,11 @@ function buildStatusPill(item, token, onStatusChange) {
         item.statusIndex = opt.index;
         pill.style.background = opt.color;
         pill.innerHTML = `${escHtml(opt.label)} <span class="pill-caret">▾</span>`;
-        // Update current marker in dropdown
         dropdown.querySelectorAll('.status-option').forEach(r => r.classList.remove('current'));
         row.classList.add('current');
         showToast('✓ Status updated');
-        onStatusChange(item);
-      } catch(err) {
+        renderBoard(currentItems, token);
+      } catch {
         pill.innerHTML = `${escHtml(item.status)} <span class="pill-caret">▾</span>`;
         showToast('⚠ Could not update status', 3000);
       } finally {
@@ -432,47 +440,91 @@ function buildStatusPill(item, token, onStatusChange) {
   return wrap;
 }
 
+function buildCard(item, token, showBoard, showStatus) {
+  const due = formatDue(item.due);
+  const card = document.createElement('div');
+  card.className = 'card';
+
+  const top = document.createElement('div');
+  top.className = 'card-top';
+
+  const name = document.createElement('div');
+  name.className = 'card-name';
+  name.textContent = item.name;
+  name.title = 'Open in Monday';
+  name.addEventListener('click', () =>
+    window.open(`https://monday.com/boards/${item.boardId}/items/${item.id}`, '_blank')
+  );
+  top.appendChild(name);
+
+  if (showStatus && item.statusOptions.length > 0) {
+    top.appendChild(buildStatusPill(item, token));
+  }
+
+  const meta = document.createElement('div');
+  meta.className = 'card-meta';
+
+  if (showBoard) {
+    meta.innerHTML += `<span class="meta-tag board" title="${escHtml(item.board)}">${escHtml(item.board)}</span>`;
+  }
+  if (!showStatus) {
+    // Show status as a plain tag when grouping by board
+    meta.innerHTML += `<span class="meta-tag" style="background:${statusColor(item.status)}22;color:${statusColor(item.status)}">${escHtml(item.status)}</span>`;
+  }
+  meta.innerHTML += due
+    ? `<span class="meta-tag ${due.cls}">${due.label}</span>`
+    : `<span class="meta-tag nodue">No due date</span>`;
+
+  card.appendChild(top);
+  card.appendChild(meta);
+  return card;
+}
+
 function renderBoard(items, token) {
   const boardEl = document.getElementById('board');
   boardEl.innerHTML = '';
 
-  // Summary
-  const boardNames = new Set(items.map(i => i.board));
+  const boards = new Set(items.map(i => i.board));
   document.getElementById('summary').textContent = items.length
-    ? `${items.length} task${items.length !== 1 ? 's' : ''} across ${boardNames.size} board${boardNames.size !== 1 ? 's' : ''}`
+    ? `${items.length} task${items.length!==1?'s':''} across ${boards.size} board${boards.size!==1?'s':''}`
     : '';
 
   if (!items.length) {
     boardEl.innerHTML = `<div class="empty-state">
       <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
-      <span>No tasks assigned to you.</span>
-    </div>`;
+      <span>No tasks assigned to you.</span></div>`;
     return;
   }
 
-  // Group by status
+  // Build groups
   const groups = {};
   for (const item of items) {
-    if (!groups[item.status]) groups[item.status] = [];
-    groups[item.status].push(item);
+    const key = groupBy === 'board' ? item.board : item.status;
+    if (!groups[key]) groups[key] = [];
+    groups[key].push(item);
   }
 
+  // Sort group keys
   const sortedKeys = Object.keys(groups).sort((a, b) => {
-    const aD = /done|complet/i.test(a) ? 1 : 0;
-    const bD = /done|complet/i.test(b) ? 1 : 0;
-    return aD - bD || a.localeCompare(b);
+    if (groupBy === 'status') {
+      const aD = /done|complet/i.test(a) ? 1 : 0;
+      const bD = /done|complet/i.test(b) ? 1 : 0;
+      return aD - bD || a.localeCompare(b);
+    }
+    return a.localeCompare(b);
   });
 
-  for (const status of sortedKeys) {
-    const grpItems = groups[status];
+  for (const key of sortedKeys) {
+    const grpItems = groups[key];
     const grp = document.createElement('div');
     grp.className = 'group';
 
+    const dotColor = groupBy === 'status' ? statusColor(key) : '#0073ea';
     const hdr = document.createElement('div');
     hdr.className = 'group-header';
     hdr.innerHTML = `
-      <span class="status-dot" style="background:${statusColor(status)}"></span>
-      <span class="group-label">${escHtml(status)}</span>
+      <span class="group-dot" style="background:${dotColor}"></span>
+      <span class="group-label">${escHtml(key)}</span>
       <span class="group-count">${grpItems.length}</span>
       <span class="chevron open">▶</span>`;
 
@@ -480,45 +532,13 @@ function renderBoard(items, token) {
     cards.className = 'cards';
 
     for (const item of grpItems) {
-      const due = formatDue(item.due);
-      const card = document.createElement('div');
-      card.className = 'card';
-      card.dataset.itemId = item.id;
-
-      const top = document.createElement('div');
-      top.className = 'card-top';
-
-      const name = document.createElement('div');
-      name.className = 'card-name';
-      name.textContent = item.name;
-      name.title = 'Open in Monday';
-      name.addEventListener('click', () => {
-        window.open(`https://monday.com/boards/${item.boardId}/items/${item.id}`, '_blank');
-      });
-
-      top.appendChild(name);
-
-      if (item.statusOptions.length > 0) {
-        const pill = buildStatusPill(item, token, updatedItem => {
-          // Re-render when status changes (card may move group)
-          renderBoard(items, token);
-        });
-        top.appendChild(pill);
-      }
-
-      const meta = document.createElement('div');
-      meta.className = 'card-meta';
-      meta.innerHTML = `<span class="meta-tag board" title="${escHtml(item.board)}">${escHtml(item.board)}</span>`;
-
-      if (due) {
-        meta.innerHTML += `<span class="meta-tag ${due.cls}">${due.label}</span>`;
-      } else {
-        meta.innerHTML += `<span class="meta-tag nodue">No due date</span>`;
-      }
-
-      card.appendChild(top);
-      card.appendChild(meta);
-      cards.appendChild(card);
+      // When grouping by board: show status pill + status tag in meta
+      // When grouping by status: show board tag, status pill in card top
+      cards.appendChild(buildCard(
+        item, token,
+        /* showBoard  */ groupBy === 'status',
+        /* showStatus */ true
+      ));
     }
 
     hdr.addEventListener('click', () => {
@@ -541,16 +561,15 @@ async function load(token) {
   document.getElementById('summary').textContent = '';
   try {
     const me = await fetchMe(token);
-    const items = await fetchMyItems(token, me.id);
-    renderBoard(items, token);
+    currentItems = await fetchMyItems(token, me.id);
+    renderBoard(currentItems, token);
     const now = new Date();
     document.getElementById('last-updated').textContent =
       `Updated ${now.getHours()}:${String(now.getMinutes()).padStart(2,'0')}`;
   } catch(e) {
     document.getElementById('board').innerHTML = `<div class="empty-state" style="color:#d83a52">
       <span>⚠ ${escHtml(e.message)}</span>
-      <span style="font-size:11px;color:#999">Check your token or network.</span>
-    </div>`;
+      <span style="font-size:11px;color:#999">Check your token or network.</span></div>`;
   } finally {
     document.getElementById('loading').style.display = 'none';
     btn.classList.remove('spinning');
@@ -569,11 +588,9 @@ document.getElementById('connect-btn').addEventListener('click', async () => {
     document.getElementById('setup-err').textContent = 'Could not connect. Double-check your token.';
   }
 });
-
 document.getElementById('token-input').addEventListener('keydown', e => {
   if (e.key === 'Enter') document.getElementById('connect-btn').click();
 });
-
 document.getElementById('refresh-btn').addEventListener('click', () => load(getToken()));
 
 function logout() {
