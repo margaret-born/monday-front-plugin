@@ -39,7 +39,7 @@
   }
   .topbar-row1 { display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px; }
   .topbar h1 { font-size: 14px; font-weight: 700; }
-  .topbar-actions { display: flex; gap: 6px; }
+  .topbar-actions { display: flex; gap: 6px; align-items: center; }
   .icon-btn {
     background: none; border: none; cursor: pointer; color: #676879;
     padding: 4px; border-radius: 4px; display: flex; align-items: center;
@@ -48,6 +48,13 @@
   .icon-btn.spinning svg { animation: spin .7s linear infinite; }
   .topbar-row2 { display: flex; align-items: center; justify-content: space-between; }
   .topbar-summary { font-size: 11px; color: #676879; }
+
+  /* Stale indicator */
+  .stale-badge {
+    font-size: 10px; color: #fff; background: #fdab3d;
+    border-radius: 10px; padding: 1px 6px; display: none;
+  }
+  .stale-badge.visible { display: inline-block; }
 
   .group-toggle {
     display: flex; background: #f0f2f8; border-radius: 6px; padding: 2px; gap: 2px;
@@ -58,6 +65,16 @@
     padding: 3px 9px; cursor: pointer; transition: background .12s, color .12s; white-space: nowrap;
   }
   .toggle-btn.active { background: #fff; color: #0073ea; box-shadow: 0 1px 3px rgba(0,0,0,.1); }
+
+  /* Progress bar */
+  .progress-bar-wrap {
+    height: 2px; background: #e6e9ef; flex-shrink: 0; display: none;
+  }
+  .progress-bar-wrap.visible { display: block; }
+  .progress-bar {
+    height: 100%; background: #0073ea;
+    transition: width .3s ease; width: 0%;
+  }
 
   #scroll { overflow-y: auto; flex: 1; padding: 10px 10px 20px; }
 
@@ -84,7 +101,6 @@
     transition: box-shadow .12s, border-color .12s;
   }
   .card:hover { border-color: #c3c6d4; box-shadow: 0 1px 6px rgba(0,0,0,.07); }
-
   .card-top {
     display: flex; align-items: flex-start;
     justify-content: space-between; gap: 6px; margin-bottom: 6px;
@@ -94,7 +110,6 @@
     word-break: break-word; flex: 1; cursor: pointer;
   }
   .card-name:hover { color: #0073ea; text-decoration: underline; }
-
   .card-meta { display: flex; flex-wrap: wrap; gap: 5px; align-items: center; }
   .meta-tag {
     font-size: 11px; background: #f0f2f8; color: #676879;
@@ -106,9 +121,7 @@
   .meta-tag.overdue { color: #d83a52; background: #fde8ec; }
   .meta-tag.nodue   { color: #c3c6d4; background: #f6f7fb; font-style: italic; }
 
-  /* ── Inline status selector (no floating dropdown) ── */
   .status-wrap { position: relative; flex-shrink: 0; }
-
   .status-pill {
     display: inline-flex; align-items: center; gap: 4px;
     font-size: 11px; font-weight: 600; padding: 3px 8px; border-radius: 20px;
@@ -119,18 +132,15 @@
   .status-pill .pill-caret { font-size: 8px; opacity: .8; }
   .status-pill.saving { opacity: .6; pointer-events: none; }
 
-  /* Inline dropdown — expands inside card flow, no absolute positioning */
   .status-menu {
-    display: none;
-    flex-direction: column;
-    margin-top: 6px;
-    border: 1px solid #e6e9ef;
-    border-radius: 8px;
-    overflow: hidden;
-    background: #fff;
-    box-shadow: 0 2px 8px rgba(0,0,0,.08);
+    display: none; flex-direction: column;
+    position: fixed; z-index: 9999;
+    border: 1px solid #e6e9ef; border-radius: 8px;
+    overflow-y: auto; background: #fff;
+    box-shadow: 0 4px 16px rgba(0,0,0,.15);
+    min-width: 160px; max-height: 220px;
   }
-  .status-menu.open { display: flex; }
+  .status-menu.open { display: flex; flex-direction: column; }
   .status-option {
     display: flex; align-items: center; gap: 8px;
     padding: 8px 10px; cursor: pointer; font-size: 12px;
@@ -141,7 +151,13 @@
   .status-option.current { font-weight: 600; background: #f0f2f8; }
   .opt-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
 
-  .empty-state, .loading {
+  .empty-state {
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    gap: 8px; padding: 40px 20px;
+    color: #676879; font-size: 12px; text-align: center;
+  }
+  .initial-loading {
     display: flex; flex-direction: column;
     align-items: center; justify-content: center;
     gap: 8px; padding: 40px 20px;
@@ -166,7 +182,7 @@
     position: fixed; bottom: 36px; left: 50%; transform: translateX(-50%);
     background: #323338; color: #fff; font-size: 12px;
     padding: 7px 14px; border-radius: 20px;
-    opacity: 0; transition: opacity .2s; pointer-events: none; white-space: nowrap; z-index: 999;
+    opacity: 0; transition: opacity .2s; pointer-events: none; white-space: nowrap; z-index: 9999;
   }
   .toast.show { opacity: 1; }
 </style>
@@ -191,6 +207,7 @@
     <div class="topbar-row1">
       <h1>My Work</h1>
       <div class="topbar-actions">
+        <span class="stale-badge" id="stale-badge">Updating…</span>
         <button class="icon-btn" id="refresh-btn" title="Refresh">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
             <polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/>
@@ -211,8 +228,9 @@
       </div>
     </div>
   </div>
+  <div class="progress-bar-wrap" id="progress-wrap"><div class="progress-bar" id="progress-bar"></div></div>
   <div id="scroll">
-    <div class="loading" id="loading"><div class="spinner"></div><span>Loading your tasks…</span></div>
+    <div class="initial-loading" id="initial-loading"><div class="spinner"></div><span>Loading your tasks…</span></div>
     <div id="board"></div>
   </div>
   <div class="footer">
@@ -223,15 +241,18 @@
 <div class="toast" id="toast"></div>
 
 <script>
-const API = 'https://api.monday.com/v2';
+const API         = 'https://api.monday.com/v2';
 const STORAGE_KEY = 'monday_api_token';
 const GROUP_KEY   = 'monday_group_by';
-const BATCH_SIZE  = 10; // boards per request
+const CACHE_KEY   = 'monday_items_cache';
+const BATCH_SIZE  = 10;
 const MAX_BOARDS  = 100;
 
 let currentItems = [];
 let groupBy = localStorage.getItem(GROUP_KEY) || 'status';
+let isRefreshing = false;
 
+// ── Toggle ──
 document.querySelectorAll('.toggle-btn').forEach(b => {
   b.classList.toggle('active', b.dataset.group === groupBy);
   b.addEventListener('click', () => {
@@ -243,7 +264,6 @@ document.querySelectorAll('.toggle-btn').forEach(b => {
   });
 });
 
-// Close open status menus when clicking outside
 document.addEventListener('click', e => {
   if (!e.target.closest('.status-wrap')) closeAllMenus();
 });
@@ -251,6 +271,7 @@ function closeAllMenus() {
   document.querySelectorAll('.status-menu.open').forEach(m => m.classList.remove('open'));
 }
 
+// ── Colours ──
 const STATUS_COLORS = {
   'done':'#00c875','completed':'#00c875',
   'working on it':'#fdab3d','in progress':'#fdab3d',
@@ -260,10 +281,23 @@ const STATUS_COLORS = {
 };
 function statusColor(l) { return STATUS_COLORS[(l||'').toLowerCase()] || STATUS_COLORS.default; }
 
+// ── Storage ──
 function getToken() { return localStorage.getItem(STORAGE_KEY); }
 function saveToken(t) { localStorage.setItem(STORAGE_KEY, t); }
 function clearToken() { localStorage.removeItem(STORAGE_KEY); }
 
+function saveCache(items) {
+  try { localStorage.setItem(CACHE_KEY, JSON.stringify({ ts: Date.now(), items })); } catch {}
+}
+function loadCache() {
+  try {
+    const c = JSON.parse(localStorage.getItem(CACHE_KEY));
+    return c?.items || null;
+  } catch { return null; }
+}
+function clearCache() { localStorage.removeItem(CACHE_KEY); }
+
+// ── UI helpers ──
 function showSetup(err) {
   document.getElementById('setup').style.display = 'flex';
   document.getElementById('main').style.display = 'none';
@@ -278,14 +312,27 @@ function showToast(msg, dur=2000) {
   t.textContent = msg; t.classList.add('show');
   setTimeout(() => t.classList.remove('show'), dur);
 }
+function setProgress(pct) {
+  const wrap = document.getElementById('progress-wrap');
+  const bar  = document.getElementById('progress-bar');
+  if (pct <= 0) { wrap.classList.remove('visible'); bar.style.width = '0%'; return; }
+  wrap.classList.add('visible');
+  bar.style.width = `${Math.min(pct, 100)}%`;
+  if (pct >= 100) setTimeout(() => wrap.classList.remove('visible'), 400);
+}
+function setStaleBadge(visible) {
+  document.getElementById('stale-badge').classList.toggle('visible', visible);
+  document.getElementById('refresh-btn').classList.toggle('spinning', visible);
+}
 function escHtml(s) {
   return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 }
 
+// ── API ──
 async function gql(query, variables, token) {
   const r = await fetch(API, {
     method: 'POST',
-    headers: { 'Content-Type':'application/json', 'Authorization': token, 'API-Version':'2024-01' },
+    headers: { 'Content-Type':'application/json', 'Authorization':token, 'API-Version':'2024-01' },
     body: JSON.stringify({ query, variables })
   });
   if (!r.ok) throw new Error(`HTTP ${r.status}`);
@@ -299,102 +346,102 @@ async function fetchMe(token) {
   return d.me;
 }
 
-// Chunk array into groups of n
 function chunk(arr, n) {
   const out = [];
-  for (let i = 0; i < arr.length; i += n) out.push(arr.slice(i, i + n));
+  for (let i = 0; i < arr.length; i += n) out.push(arr.slice(i, i+n));
   return out;
 }
 
-async function fetchMyItems(token, userId, onProgress) {
-  // Step 1: get board list + column metadata (one fast request)
-  onProgress('Fetching your boards…');
+function parseBoardItems(boardMeta, boardResult, userId) {
+  if (!boardResult) return [];
+  const statusCol  = (boardMeta.columns||[]).find(c => c.type==='color' || c.type==='status');
+  const dateColDef = (boardMeta.columns||[]).find(c => c.type==='date'  || c.type==='timeline');
+
+  let statusOptions = [];
+  if (statusCol?.settings_str) {
+    try {
+      const s = JSON.parse(statusCol.settings_str);
+      statusOptions = Object.entries(s.labels||{}).map(([idx, label]) => ({
+        index: parseInt(idx), label,
+        color: s.labels_colors?.[idx]?.color || statusColor(label)
+      }));
+    } catch {}
+  }
+
+  const found = [];
+  for (const item of (boardResult.items_page?.items || [])) {
+    const personCv = item.column_values.find(c => c.type === 'people');
+    if (!personCv?.value) continue;
+    let assigned = false;
+    try {
+      const v = JSON.parse(personCv.value);
+      assigned = (v.personsAndTeams||[]).some(p => String(p.id) === String(userId));
+    } catch { continue; }
+    if (!assigned) continue;
+
+    const sCv    = item.column_values.find(c => c.type==='color' || c.type==='status');
+    const status = sCv?.text || 'No Status';
+    const currentOpt = statusOptions.find(o => o.label === status);
+
+    const dateCv = dateColDef
+      ? item.column_values.find(c => c.id === dateColDef.id && c.text)
+      : item.column_values.find(c => (c.type==='date'||c.type==='timeline') && c.text);
+    let due = null;
+    if (dateCv?.text) {
+      const parts = dateCv.text.split(' - ');
+      due = parts[parts.length-1].trim();
+    }
+
+    found.push({
+      id: item.id, name: item.name,
+      board: boardMeta.name, boardId: boardMeta.id,
+      status, statusIndex: currentOpt?.index ?? null,
+      statusColId: statusCol?.id || 'status',
+      statusOptions, due
+    });
+  }
+  return found;
+}
+
+async function fetchMyItems(token, userId, onBatchDone) {
+  // Step 1: board list + column metadata (single fast request)
   const boardList = await gql(`{
-    boards(limit: ${MAX_BOARDS}, state: active) { id name columns { id type settings_str } }
+    boards(limit:${MAX_BOARDS}, state:active) { id name columns { id type settings_str } }
   }`, {}, token);
 
-  const boards = boardList.boards || [];
+  const boards  = boardList.boards || [];
   const batches = chunk(boards, BATCH_SIZE);
-  const myItems = [];
+  const allItems = [];
+  let completed = 0;
 
-  // Step 2: fetch items in batches of BATCH_SIZE using GraphQL aliases
-  for (let bi = 0; bi < batches.length; bi++) {
-    const batch = batches[bi];
-    onProgress(`Loading tasks… ${Math.round(((bi + 1) / batches.length) * 100)}%`);
-
-    // Build a multi-board query using aliases
-    const aliasQueries = batch.map((b, i) =>
-      `b${i}: boards(ids: [${b.id}]) {
-        id
-        items_page(limit: 100) {
-          items {
-            id name
-            column_values { id type text value }
-          }
+  // Step 2: fire ALL batches in parallel
+  const batchPromises = batches.map(async (batch, bi) => {
+    const aliasQ = batch.map((b, i) =>
+      `b${i}: boards(ids:[${b.id}]) {
+        id items_page(limit:100) {
+          items { id name column_values { id type text value } }
         }
       }`
     ).join('\n');
 
     let batchData;
-    try {
-      batchData = await gql(`{ ${aliasQueries} }`, {}, token);
-    } catch { continue; }
+    try { batchData = await gql(`{ ${aliasQ} }`, {}, token); }
+    catch { completed++; onBatchDone(Math.round((completed/batches.length)*100)); return; }
 
-    // Process each board in the batch
+    const batchItems = [];
     for (let i = 0; i < batch.length; i++) {
-      const boardMeta = batch[i];
-      const boardResult = batchData[`b${i}`]?.[0];
-      if (!boardResult) continue;
-
-      const statusCol = (boardMeta.columns||[]).find(c => c.type === 'color' || c.type === 'status');
-      const dateColDef = (boardMeta.columns||[]).find(c => c.type === 'date' || c.type === 'timeline');
-
-      let statusOptions = [];
-      if (statusCol?.settings_str) {
-        try {
-          const s = JSON.parse(statusCol.settings_str);
-          statusOptions = Object.entries(s.labels||{}).map(([idx, label]) => ({
-            index: parseInt(idx), label,
-            color: s.labels_colors?.[idx]?.color || statusColor(label)
-          }));
-        } catch {}
-      }
-
-      for (const item of (boardResult.items_page?.items || [])) {
-        // Filter to items assigned to this user
-        const personCv = item.column_values.find(c => c.type === 'people');
-        if (!personCv?.value) continue;
-        let assigned = false;
-        try {
-          const v = JSON.parse(personCv.value);
-          assigned = (v.personsAndTeams||[]).some(p => String(p.id) === String(userId));
-        } catch { continue; }
-        if (!assigned) continue;
-
-        const sCv = item.column_values.find(c => c.type === 'color' || c.type === 'status');
-        const status = sCv?.text || 'No Status';
-        const currentOpt = statusOptions.find(o => o.label === status);
-
-        const dateCv = dateColDef
-          ? item.column_values.find(c => c.id === dateColDef.id && c.text)
-          : item.column_values.find(c => (c.type==='date'||c.type==='timeline') && c.text);
-        let due = null;
-        if (dateCv?.text) {
-          const parts = dateCv.text.split(' - ');
-          due = parts[parts.length-1].trim();
-        }
-
-        myItems.push({
-          id: item.id, name: item.name,
-          board: boardMeta.name, boardId: boardMeta.id,
-          status, statusIndex: currentOpt?.index ?? null,
-          statusColId: statusCol?.id || 'status',
-          statusOptions, due
-        });
-      }
+      const parsed = parseBoardItems(batch[i], batchData[`b${i}`]?.[0], userId);
+      batchItems.push(...parsed);
     }
-  }
-  return myItems;
+
+    completed++;
+    allItems.push(...batchItems);
+    // Render incrementally as each batch finishes
+    onBatchDone(Math.round((completed/batches.length)*100), batchItems);
+  });
+
+  await Promise.all(batchPromises);
+  return allItems;
 }
 
 async function updateStatus(token, itemId, boardId, colId, statusIndex) {
@@ -407,6 +454,7 @@ async function updateStatus(token, itemId, boardId, colId, statusIndex) {
   );
 }
 
+// ── Rendering ──
 function formatDue(dateStr) {
   if (!dateStr) return null;
   try {
@@ -429,9 +477,9 @@ function buildStatusPill(item, token) {
   pill.style.background = statusColor(item.status);
   pill.innerHTML = `${escHtml(item.status)} <span class="pill-caret">▾</span>`;
 
-  // Inline menu — expands inside the card, no floating overlay
   const menu = document.createElement('div');
   menu.className = 'status-menu';
+  document.body.appendChild(menu); // attach to body so fixed pos works in Electron
 
   for (const opt of item.statusOptions) {
     const row = document.createElement('div');
@@ -451,14 +499,13 @@ function buildStatusPill(item, token) {
         pill.innerHTML = `${escHtml(opt.label)} <span class="pill-caret">▾</span>`;
         menu.querySelectorAll('.status-option').forEach(r => r.classList.remove('current'));
         row.classList.add('current');
+        saveCache(currentItems);
         showToast('✓ Status updated');
         renderBoard(currentItems, token);
-      } catch(err) {
+      } catch {
         pill.innerHTML = `${escHtml(item.status)} <span class="pill-caret">▾</span>`;
         showToast('⚠ Could not update status', 3000);
-      } finally {
-        pill.classList.remove('saving');
-      }
+      } finally { pill.classList.remove('saving'); }
     });
     menu.appendChild(row);
   }
@@ -468,30 +515,28 @@ function buildStatusPill(item, token) {
     const wasOpen = menu.classList.contains('open');
     closeAllMenus();
     if (!wasOpen && item.statusOptions.length > 0) {
-      // Position menu using fixed coords from pill's bounding rect
       const rect = pill.getBoundingClientRect();
-      const menuWidth = 180;
-      // Align right edge of menu to right edge of pill, flip up if near bottom
-      let left = rect.right - menuWidth;
+      const mw = 180;
+      let left = rect.right - mw;
       if (left < 8) left = 8;
       let top = rect.bottom + 4;
-      // If menu would go off bottom of viewport, show above pill instead
-      const estHeight = Math.min(item.statusOptions.length * 36, 220);
-      if (top + estHeight > window.innerHeight - 8) top = rect.top - estHeight - 4;
+      const estH = Math.min(item.statusOptions.length * 36, 220);
+      if (top + estH > window.innerHeight - 8) top = rect.top - estH - 4;
       menu.style.left = `${left}px`;
       menu.style.top  = `${top}px`;
-      menu.style.width = `${menuWidth}px`;
+      menu.style.width = `${mw}px`;
       menu.classList.add('open');
     }
   });
 
+  // Clean up menu from body when card is removed
+  wrap._menu = menu;
   wrap.appendChild(pill);
-  wrap.appendChild(menu);
   return wrap;
 }
 
 function buildCard(item, token) {
-  const due = formatDue(item.due);
+  const due  = formatDue(item.due);
   const card = document.createElement('div');
   card.className = 'card';
 
@@ -510,9 +555,8 @@ function buildCard(item, token) {
 
   const meta = document.createElement('div');
   meta.className = 'card-meta';
-  if (groupBy === 'status') {
+  if (groupBy === 'status')
     meta.innerHTML += `<span class="meta-tag board" title="${escHtml(item.board)}">${escHtml(item.board)}</span>`;
-  }
   meta.innerHTML += due
     ? `<span class="meta-tag ${due.cls}">${due.label}</span>`
     : `<span class="meta-tag nodue">No due date</span>`;
@@ -523,6 +567,9 @@ function buildCard(item, token) {
 }
 
 function renderBoard(items, token) {
+  // Clean up any body-attached menus from prior render
+  document.querySelectorAll('.status-menu').forEach(m => m.remove());
+
   const boardEl = document.getElementById('board');
   boardEl.innerHTML = '';
 
@@ -533,7 +580,9 @@ function renderBoard(items, token) {
 
   if (!items.length) {
     boardEl.innerHTML = `<div class="empty-state">
-      <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+      <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+        <path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/>
+      </svg>
       <span>No tasks assigned to you.</span></div>`;
     return;
   }
@@ -584,32 +633,68 @@ function renderBoard(items, token) {
   }
 }
 
-async function load(token) {
-  const btn = document.getElementById('refresh-btn');
-  btn.classList.add('spinning');
-  document.getElementById('loading').style.display = 'flex';
-  document.getElementById('board').innerHTML = '';
-  document.getElementById('summary').textContent = '';
+// ── Load ──
+async function load(token, background = false) {
+  if (isRefreshing) return;
+  isRefreshing = true;
+
+  const cached = loadCache();
+
+  if (cached && cached.length > 0) {
+    // Show cached data immediately
+    currentItems = cached;
+    document.getElementById('initial-loading').style.display = 'none';
+    renderBoard(currentItems, token);
+    // Show stale indicator while refreshing in background
+    setStaleBadge(true);
+    setProgress(2); // nudge bar to show activity
+  } else {
+    document.getElementById('initial-loading').style.display = 'flex';
+    document.getElementById('board').innerHTML = '';
+    document.getElementById('summary').textContent = '';
+    setProgress(2);
+  }
+
   try {
     const me = await fetchMe(token);
-    currentItems = await fetchMyItems(token, me.id, msg => {
-      const el = document.querySelector('#loading span');
-      if (el) el.textContent = msg;
+    const freshItems = [];
+
+    await fetchMyItems(token, me.id, (pct, batchItems) => {
+      setProgress(pct);
+      if (batchItems && batchItems.length > 0) {
+        freshItems.push(...batchItems);
+        // Hide initial spinner once first tasks arrive
+        document.getElementById('initial-loading').style.display = 'none';
+        currentItems = [...freshItems];
+        renderBoard(currentItems, token);
+      }
     });
+
+    // Final render with all items
+    currentItems = freshItems;
+    saveCache(currentItems);
     renderBoard(currentItems, token);
+    setProgress(100);
+
     const now = new Date();
     document.getElementById('last-updated').textContent =
       `Updated ${now.getHours()}:${String(now.getMinutes()).padStart(2,'0')}`;
   } catch(e) {
-    document.getElementById('board').innerHTML = `<div class="empty-state" style="color:#d83a52">
-      <span>⚠ ${escHtml(e.message)}</span>
-      <span style="font-size:11px;color:#999">Check your token or network.</span></div>`;
+    if (!currentItems.length) {
+      document.getElementById('initial-loading').style.display = 'none';
+      document.getElementById('board').innerHTML = `<div class="empty-state" style="color:#d83a52">
+        <span>⚠ ${escHtml(e.message)}</span>
+        <span style="font-size:11px;color:#999">Check your token or network.</span></div>`;
+    } else {
+      showToast('⚠ Refresh failed — showing cached tasks', 3000);
+    }
   } finally {
-    document.getElementById('loading').style.display = 'none';
-    btn.classList.remove('spinning');
+    setStaleBadge(false);
+    isRefreshing = false;
   }
 }
 
+// ── Wiring ──
 document.getElementById('connect-btn').addEventListener('click', async () => {
   const t = document.getElementById('token-input').value.trim();
   if (!t) return;
@@ -624,10 +709,12 @@ document.getElementById('connect-btn').addEventListener('click', async () => {
 document.getElementById('token-input').addEventListener('keydown', e => {
   if (e.key === 'Enter') document.getElementById('connect-btn').click();
 });
-document.getElementById('refresh-btn').addEventListener('click', () => load(getToken()));
+document.getElementById('refresh-btn').addEventListener('click', () => {
+  if (!isRefreshing) load(getToken());
+});
 
 function logout() {
-  clearToken();
+  clearToken(); clearCache();
   document.getElementById('token-input').value = '';
   document.getElementById('setup-err').textContent = '';
   showSetup();
@@ -635,6 +722,7 @@ function logout() {
 document.getElementById('logout-btn').addEventListener('click', logout);
 document.getElementById('logout-link').addEventListener('click', logout);
 
+// ── Init ──
 const saved = getToken();
 if (saved) { showMain(); load(saved); } else showSetup();
 </script>
