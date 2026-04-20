@@ -406,7 +406,7 @@ function parseBoardItems(boardMeta, boardResult, userId) {
 async function fetchMyItems(token, userId, onBatchDone) {
   // Step 1: board list + column metadata (single fast request)
   const boardList = await gql(`{
-    boards(limit:${MAX_BOARDS}, state:active) { id name columns { id type settings_str } }
+    boards(limit:${MAX_BOARDS}, state:active, board_kind:all) { id name columns { id type settings_str } }
   }`, {}, token);
 
   const boards  = boardList.boards || [];
@@ -548,7 +548,7 @@ function buildCard(item, token) {
   name.textContent = item.name;
   name.title = 'Open in Monday';
   name.addEventListener('click', () =>
-    window.open(`https://monday.com/boards/${item.boardId}/items/${item.id}`, '_blank')
+    window.open(`https://monday.com/boards/${item.boardId}/pulses/${item.id}`, '_blank')
   );
   top.appendChild(name);
   top.appendChild(buildStatusPill(item, token));
