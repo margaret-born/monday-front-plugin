@@ -406,7 +406,9 @@ function parseBoardItems(boardMeta, boardResult, userId) {
 async function fetchMyItems(token, userId, onBatchDone) {
   // Step 1: board list + column metadata (single fast request)
   const boardList = await gql(`{
-    boards(limit:${MAX_BOARDS}, state:active, board_kind:all) { id name columns { id type settings_str } }
+    boards(limit:${MAX_BOARDS}, state:active, board_kind: public) { id name columns { id type settings_str } }
+    privateBoards: boards(limit:${MAX_BOARDS}, state:active, board_kind: private) { id name columns { id type settings_str } }
+    shareableBoards: boards(limit:${MAX_BOARDS}, state:active, board_kind: share) { id name columns { id type settings_str } }
   }`, {}, token);
 
   const boards  = boardList.boards || [];
@@ -680,6 +682,7 @@ async function load(token, background = false) {
     document.getElementById('last-updated').textContent =
       `Updated ${now.getHours()}:${String(now.getMinutes()).padStart(2,'0')}`;
   } catch(e) {
+    console.error('Monday plugin load error:', e);
     if (!currentItems.length) {
       document.getElementById('initial-loading').style.display = 'none';
       document.getElementById('board').innerHTML = `<div class="empty-state" style="color:#d83a52">
