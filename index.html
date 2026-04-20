@@ -245,7 +245,7 @@ const API         = 'https://api.monday.com/v2';
 const STORAGE_KEY = 'monday_api_token';
 const GROUP_KEY   = 'monday_group_by';
 const CACHE_KEY   = 'monday_items_cache';
-const BATCH_SIZE  = 10;
+const MONDAY_SUBDOMAIN = 'tlatech-company'; // your Monday subdomain
 const MAX_BOARDS  = 100;
 
 let currentItems = [];
@@ -550,7 +550,7 @@ function buildCard(item, token) {
   name.textContent = item.name;
   name.title = 'Open in Monday';
   name.addEventListener('click', () =>
-    window.open(`https://monday.com/boards/${item.boardId}/pulses/${item.id}`, '_blank')
+    window.open(`https://${MONDAY_SUBDOMAIN}.monday.com/boards/${item.boardId}/pulses/${item.id}`, '_blank')
   );
   top.appendChild(name);
   top.appendChild(buildStatusPill(item, token));
