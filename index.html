@@ -12,6 +12,7 @@
     height: 100vh; display: flex; flex-direction: column;
   }
 
+  /* ── Setup ── */
   #setup {
     display: flex; flex-direction: column;
     justify-content: center; align-items: center;
@@ -31,6 +32,7 @@
   #setup button:hover { background: #0060c0; }
   #setup .err { color: #d83a52; font-size: 12px; }
 
+  /* ── Main ── */
   #main { display: none; flex-direction: column; flex: 1; overflow: hidden; }
 
   .topbar {
@@ -49,7 +51,6 @@
   .topbar-row2 { display: flex; align-items: center; justify-content: space-between; }
   .topbar-summary { font-size: 11px; color: #676879; }
 
-  /* Stale indicator */
   .stale-badge {
     font-size: 10px; color: #fff; background: #fdab3d;
     border-radius: 10px; padding: 1px 6px; display: none;
@@ -66,18 +67,13 @@
   }
   .toggle-btn.active { background: #fff; color: #0073ea; box-shadow: 0 1px 3px rgba(0,0,0,.1); }
 
-  /* Progress bar */
-  .progress-bar-wrap {
-    height: 2px; background: #e6e9ef; flex-shrink: 0; display: none;
-  }
+  .progress-bar-wrap { height: 2px; background: #e6e9ef; flex-shrink: 0; display: none; }
   .progress-bar-wrap.visible { display: block; }
-  .progress-bar {
-    height: 100%; background: #0073ea;
-    transition: width .3s ease; width: 0%;
-  }
+  .progress-bar { height: 100%; background: #0073ea; transition: width .3s ease; width: 0%; }
 
-  #scroll { overflow-y: auto; flex: 1; padding: 10px 10px 20px; }
+  #scroll { overflow-y: auto; flex: 1; padding: 10px 10px 10px; }
 
+  /* ── Groups ── */
   .group { margin-bottom: 14px; }
   .group-header {
     display: flex; align-items: center; gap: 6px;
@@ -87,13 +83,11 @@
   .group-header:hover { background: rgba(0,0,0,.04); }
   .group-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
   .group-label { font-weight: 600; font-size: 12px; flex: 1; }
-  .group-count {
-    font-size: 11px; color: #676879;
-    background: #e6e9ef; border-radius: 10px; padding: 1px 6px;
-  }
+  .group-count { font-size: 11px; color: #676879; background: #e6e9ef; border-radius: 10px; padding: 1px 6px; }
   .chevron { font-size: 10px; color: #676879; transition: transform .15s; }
   .chevron.open { transform: rotate(90deg); }
 
+  /* ── Cards ── */
   .cards { display: flex; flex-direction: column; gap: 6px; }
   .card {
     background: #fff; border: 1px solid #e6e9ef;
@@ -101,10 +95,7 @@
     transition: box-shadow .12s, border-color .12s;
   }
   .card:hover { border-color: #c3c6d4; box-shadow: 0 1px 6px rgba(0,0,0,.07); }
-  .card-top {
-    display: flex; align-items: flex-start;
-    justify-content: space-between; gap: 6px; margin-bottom: 6px;
-  }
+  .card-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 6px; margin-bottom: 6px; }
   .card-name {
     font-weight: 500; font-size: 13px; line-height: 1.4;
     word-break: break-word; flex: 1; cursor: pointer;
@@ -121,6 +112,7 @@
   .meta-tag.overdue { color: #d83a52; background: #fde8ec; }
   .meta-tag.nodue   { color: #c3c6d4; background: #f6f7fb; font-style: italic; }
 
+  /* ── Status pill ── */
   .status-wrap { position: relative; flex-shrink: 0; }
   .status-pill {
     display: inline-flex; align-items: center; gap: 4px;
@@ -133,11 +125,9 @@
   .status-pill.saving { opacity: .6; pointer-events: none; }
 
   .status-menu {
-    display: none; flex-direction: column;
-    position: fixed; z-index: 9999;
-    border: 1px solid #e6e9ef; border-radius: 8px;
-    overflow-y: auto; background: #fff;
-    box-shadow: 0 4px 16px rgba(0,0,0,.15);
+    display: none; flex-direction: column; position: fixed; z-index: 9999;
+    border: 1px solid #e6e9ef; border-radius: 8px; overflow-y: auto;
+    background: #fff; box-shadow: 0 4px 16px rgba(0,0,0,.15);
     min-width: 160px; max-height: 220px;
   }
   .status-menu.open { display: flex; flex-direction: column; }
@@ -151,13 +141,82 @@
   .status-option.current { font-weight: 600; background: #f0f2f8; }
   .opt-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
 
-  .empty-state {
-    display: flex; flex-direction: column;
-    align-items: center; justify-content: center;
-    gap: 8px; padding: 40px 20px;
-    color: #676879; font-size: 12px; text-align: center;
+  /* ── New task button ── */
+  .new-task-bar {
+    padding: 10px 12px;
+    background: #fff; border-top: 1px solid #e6e9ef;
+    flex-shrink: 0;
   }
-  .initial-loading {
+  .new-task-btn {
+    width: 100%; padding: 9px;
+    background: #0073ea; color: #fff;
+    border: none; border-radius: 6px;
+    font-size: 13px; font-weight: 600; cursor: pointer;
+    display: flex; align-items: center; justify-content: center; gap: 6px;
+    transition: background .12s;
+  }
+  .new-task-btn:hover { background: #0060c0; }
+
+  /* ── New task drawer ── */
+  .drawer-overlay {
+    display: none; position: fixed; inset: 0;
+    background: rgba(0,0,0,.3); z-index: 200;
+  }
+  .drawer-overlay.open { display: block; }
+  .drawer {
+    position: fixed; bottom: 0; left: 0; right: 0;
+    background: #fff; border-radius: 14px 14px 0 0;
+    box-shadow: 0 -4px 24px rgba(0,0,0,.15);
+    padding: 16px 16px 24px;
+    z-index: 201;
+    transform: translateY(100%);
+    transition: transform .22s ease;
+  }
+  .drawer.open { transform: translateY(0); }
+
+  .drawer-header {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 14px;
+  }
+  .drawer-header h2 { font-size: 14px; font-weight: 700; }
+  .drawer-close {
+    background: none; border: none; cursor: pointer;
+    color: #676879; font-size: 18px; line-height: 1; padding: 2px 6px; border-radius: 4px;
+  }
+  .drawer-close:hover { background: #f0f2f8; color: #323338; }
+
+  .field { margin-bottom: 12px; }
+  .field label {
+    display: block; font-size: 11px; font-weight: 600;
+    color: #676879; margin-bottom: 4px; text-transform: uppercase; letter-spacing: .4px;
+  }
+  .field input, .field select {
+    width: 100%; padding: 8px 10px;
+    border: 1px solid #c3c6d4; border-radius: 6px;
+    font-size: 13px; outline: none; background: #fff; color: #323338;
+    appearance: none; -webkit-appearance: none;
+  }
+  .field input:focus, .field select:focus { border-color: #0073ea; }
+  .field .req { color: #d83a52; }
+
+  .drawer-actions { display: flex; gap: 8px; margin-top: 4px; }
+  .btn-primary {
+    flex: 1; padding: 9px; background: #0073ea; color: #fff;
+    border: none; border-radius: 6px; font-size: 13px; font-weight: 600;
+    cursor: pointer; transition: background .12s;
+  }
+  .btn-primary:hover { background: #0060c0; }
+  .btn-primary:disabled { background: #c3c6d4; cursor: not-allowed; }
+  .btn-secondary {
+    padding: 9px 16px; background: #f0f2f8; color: #323338;
+    border: none; border-radius: 6px; font-size: 13px; font-weight: 500;
+    cursor: pointer; transition: background .12s;
+  }
+  .btn-secondary:hover { background: #e6e9ef; }
+  .drawer-err { color: #d83a52; font-size: 12px; margin-top: 6px; min-height: 16px; }
+
+  /* ── States ── */
+  .empty-state, .initial-loading {
     display: flex; flex-direction: column;
     align-items: center; justify-content: center;
     gap: 8px; padding: 40px 20px;
@@ -179,7 +238,7 @@
   .footer a:hover { color: #d83a52; }
 
   .toast {
-    position: fixed; bottom: 36px; left: 50%; transform: translateX(-50%);
+    position: fixed; bottom: 80px; left: 50%; transform: translateX(-50%);
     background: #323338; color: #fff; font-size: 12px;
     padding: 7px 14px; border-radius: 20px;
     opacity: 0; transition: opacity .2s; pointer-events: none; white-space: nowrap; z-index: 9999;
@@ -189,6 +248,7 @@
 </head>
 <body>
 
+<!-- ── Setup ── -->
 <div id="setup">
   <svg width="36" height="36" viewBox="0 0 36 36" fill="none">
     <rect width="36" height="36" rx="8" fill="#0073EA"/>
@@ -199,9 +259,10 @@
   <input id="token-input" type="password" placeholder="API token (starts with eyJ…)" autocomplete="off"/>
   <button id="connect-btn">Connect</button>
   <span id="setup-err" class="err"></span>
-  <p style="font-size:11px;color:#c3c6d4">Get your token: Monday → Profile photo → Admin → API</p>
+  <p style="font-size:11px;color:#c3c6d4">Get your token: Monday → Profile photo → Developers → Personal API Token</p>
 </div>
 
+<!-- ── Main ── -->
 <div id="main">
   <div class="topbar">
     <div class="topbar-row1">
@@ -229,28 +290,80 @@
     </div>
   </div>
   <div class="progress-bar-wrap" id="progress-wrap"><div class="progress-bar" id="progress-bar"></div></div>
+
   <div id="scroll">
     <div class="initial-loading" id="initial-loading"><div class="spinner"></div><span>Loading your tasks…</span></div>
     <div id="board"></div>
   </div>
+
   <div class="footer">
     <span id="last-updated"></span> &nbsp;·&nbsp; <a id="logout-link">Disconnect</a>
   </div>
+
+  <div class="new-task-bar">
+    <button class="new-task-btn" id="new-task-btn">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+      New Task
+    </button>
+  </div>
+</div>
+
+<!-- ── New task drawer ── -->
+<div class="drawer-overlay" id="drawer-overlay"></div>
+<div class="drawer" id="drawer">
+  <div class="drawer-header">
+    <h2>New Task</h2>
+    <button class="drawer-close" id="drawer-close">×</button>
+  </div>
+
+  <div class="field">
+    <label>Task Name <span class="req">*</span></label>
+    <input id="new-task-name" type="text" placeholder="What needs to be done?"/>
+  </div>
+
+  <div class="field">
+    <label>Board <span class="req">*</span></label>
+    <select id="new-task-board">
+      <option value="">Select a board…</option>
+    </select>
+  </div>
+
+  <div class="field">
+    <label>Group / Section</label>
+    <select id="new-task-group" disabled>
+      <option value="">Select a board first…</option>
+    </select>
+  </div>
+
+  <div class="field">
+    <label>Due Date</label>
+    <input id="new-task-due" type="date"/>
+  </div>
+
+  <div class="drawer-actions">
+    <button class="btn-secondary" id="drawer-cancel">Cancel</button>
+    <button class="btn-primary" id="drawer-submit">Create Task</button>
+  </div>
+  <div class="drawer-err" id="drawer-err"></div>
 </div>
 
 <div class="toast" id="toast"></div>
 
 <script>
-const API         = 'https://api.monday.com/v2';
-const STORAGE_KEY = 'monday_api_token';
-const GROUP_KEY   = 'monday_group_by';
-const CACHE_KEY   = 'monday_items_cache';
-const MONDAY_SUBDOMAIN = 'tlatech-company'; // your Monday subdomain
-const MAX_BOARDS  = 100;
+const API              = 'https://api.monday.com/v2';
+const MONDAY_SUBDOMAIN = 'tlatech-company';
+const STORAGE_KEY      = 'monday_api_token';
+const GROUP_KEY        = 'monday_group_by';
+const CACHE_KEY        = 'monday_items_cache';
+const BOARDS_CACHE_KEY = 'monday_boards_cache';
+const BATCH_SIZE       = 10;
+const MAX_BOARDS       = 100;
 
-let currentItems = [];
-let groupBy = localStorage.getItem(GROUP_KEY) || 'status';
-let isRefreshing = false;
+let currentItems  = [];
+let cachedBoards  = []; // for the new task board picker
+let currentUserId = null;
+let groupBy       = localStorage.getItem(GROUP_KEY) || 'status';
+let isRefreshing  = false;
 
 // ── Toggle ──
 document.querySelectorAll('.toggle-btn').forEach(b => {
@@ -285,17 +398,22 @@ function statusColor(l) { return STATUS_COLORS[(l||'').toLowerCase()] || STATUS_
 function getToken() { return localStorage.getItem(STORAGE_KEY); }
 function saveToken(t) { localStorage.setItem(STORAGE_KEY, t); }
 function clearToken() { localStorage.removeItem(STORAGE_KEY); }
-
 function saveCache(items) {
   try { localStorage.setItem(CACHE_KEY, JSON.stringify({ ts: Date.now(), items })); } catch {}
 }
 function loadCache() {
-  try {
-    const c = JSON.parse(localStorage.getItem(CACHE_KEY));
-    return c?.items || null;
-  } catch { return null; }
+  try { return JSON.parse(localStorage.getItem(CACHE_KEY))?.items || null; } catch { return null; }
 }
-function clearCache() { localStorage.removeItem(CACHE_KEY); }
+function saveBoardsCache(boards) {
+  try { localStorage.setItem(BOARDS_CACHE_KEY, JSON.stringify(boards)); } catch {}
+}
+function loadBoardsCache() {
+  try { return JSON.parse(localStorage.getItem(BOARDS_CACHE_KEY)) || []; } catch { return []; }
+}
+function clearCache() {
+  localStorage.removeItem(CACHE_KEY);
+  localStorage.removeItem(BOARDS_CACHE_KEY);
+}
 
 // ── UI helpers ──
 function showSetup(err) {
@@ -320,9 +438,9 @@ function setProgress(pct) {
   bar.style.width = `${Math.min(pct, 100)}%`;
   if (pct >= 100) setTimeout(() => wrap.classList.remove('visible'), 400);
 }
-function setStaleBadge(visible) {
-  document.getElementById('stale-badge').classList.toggle('visible', visible);
-  document.getElementById('refresh-btn').classList.toggle('spinning', visible);
+function setStaleBadge(v) {
+  document.getElementById('stale-badge').classList.toggle('visible', v);
+  document.getElementById('refresh-btn').classList.toggle('spinning', v);
 }
 function escHtml(s) {
   return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
@@ -348,55 +466,47 @@ async function fetchMe(token) {
 
 function chunk(arr, n) {
   const out = [];
-  for (let i = 0; i < arr.length; i += n) out.push(arr.slice(i, i+n));
+  for (let i=0; i<arr.length; i+=n) out.push(arr.slice(i,i+n));
   return out;
 }
 
 function parseBoardItems(boardMeta, boardResult, userId) {
   if (!boardResult) return [];
-  const statusCol  = (boardMeta.columns||[]).find(c => c.type==='color' || c.type==='status');
-  const dateColDef = (boardMeta.columns||[]).find(c => c.type==='date'  || c.type==='timeline');
-
+  const statusCol  = (boardMeta.columns||[]).find(c => c.type==='color'||c.type==='status');
+  const dateColDef = (boardMeta.columns||[]).find(c => c.type==='date'||c.type==='timeline');
   let statusOptions = [];
   if (statusCol?.settings_str) {
     try {
       const s = JSON.parse(statusCol.settings_str);
-      statusOptions = Object.entries(s.labels||{}).map(([idx, label]) => ({
+      statusOptions = Object.entries(s.labels||{}).map(([idx,label]) => ({
         index: parseInt(idx), label,
         color: s.labels_colors?.[idx]?.color || statusColor(label)
       }));
     } catch {}
   }
-
   const found = [];
-  for (const item of (boardResult.items_page?.items || [])) {
-    const personCv = item.column_values.find(c => c.type === 'people');
+  for (const item of (boardResult.items_page?.items||[])) {
+    const personCv = item.column_values.find(c => c.type==='people');
     if (!personCv?.value) continue;
     let assigned = false;
     try {
       const v = JSON.parse(personCv.value);
-      assigned = (v.personsAndTeams||[]).some(p => String(p.id) === String(userId));
+      assigned = (v.personsAndTeams||[]).some(p => String(p.id)===String(userId));
     } catch { continue; }
     if (!assigned) continue;
-
-    const sCv    = item.column_values.find(c => c.type==='color' || c.type==='status');
+    const sCv = item.column_values.find(c => c.type==='color'||c.type==='status');
     const status = sCv?.text || 'No Status';
-    const currentOpt = statusOptions.find(o => o.label === status);
-
+    const currentOpt = statusOptions.find(o => o.label===status);
     const dateCv = dateColDef
-      ? item.column_values.find(c => c.id === dateColDef.id && c.text)
+      ? item.column_values.find(c => c.id===dateColDef.id && c.text)
       : item.column_values.find(c => (c.type==='date'||c.type==='timeline') && c.text);
     let due = null;
-    if (dateCv?.text) {
-      const parts = dateCv.text.split(' - ');
-      due = parts[parts.length-1].trim();
-    }
-
+    if (dateCv?.text) { const pts = dateCv.text.split(' - '); due = pts[pts.length-1].trim(); }
     found.push({
       id: item.id, name: item.name,
       board: boardMeta.name, boardId: boardMeta.id,
-      status, statusIndex: currentOpt?.index ?? null,
-      statusColId: statusCol?.id || 'status',
+      status, statusIndex: currentOpt?.index??null,
+      statusColId: statusCol?.id||'status',
       statusOptions, due
     });
   }
@@ -404,41 +514,43 @@ function parseBoardItems(boardMeta, boardResult, userId) {
 }
 
 async function fetchMyItems(token, userId, onBatchDone) {
-  // Step 1: board list + column metadata (single fast request)
   const boardList = await gql(`{
-    boards(limit:${MAX_BOARDS}, state:active, board_kind: public) { id name columns { id type settings_str } }
-    privateBoards: boards(limit:${MAX_BOARDS}, state:active, board_kind: private) { id name columns { id type settings_str } }
-    shareableBoards: boards(limit:${MAX_BOARDS}, state:active, board_kind: share) { id name columns { id type settings_str } }
+    publicBoards:    boards(limit:${MAX_BOARDS}, state:active, board_kind:public)   { id name columns { id type settings_str } }
+    privateBoards:   boards(limit:${MAX_BOARDS}, state:active, board_kind:private)  { id name columns { id type settings_str } }
+    shareableBoards: boards(limit:${MAX_BOARDS}, state:active, board_kind:share)    { id name columns { id type settings_str } }
   }`, {}, token);
 
-  const boards  = boardList.boards || [];
-  const batches = chunk(boards, BATCH_SIZE);
-  const allItems = [];
-  let completed = 0;
+  const boardMap = new Map();
+  [...(boardList.publicBoards||[]),...(boardList.privateBoards||[]),...(boardList.shareableBoards||[])]
+    .forEach(b => boardMap.set(b.id, b));
+  const boards = [...boardMap.values()];
 
-  // Step 2: fire ALL batches in parallel
+  // Cache boards for task creation picker
+  saveBoardsCache(boards.map(b => ({ id: b.id, name: b.name })));
+  cachedBoards = boards.map(b => ({ id: b.id, name: b.name }));
+  populateBoardPicker();
+
+  const batches  = chunk(boards, BATCH_SIZE);
+  const allItems = [];
+  let completed  = 0;
+
   const batchPromises = batches.map(async (batch, bi) => {
-    const aliasQ = batch.map((b, i) =>
+    const aliasQ = batch.map((b,i) =>
       `b${i}: boards(ids:[${b.id}]) {
         id items_page(limit:100) {
           items { id name column_values { id type text value } }
         }
       }`
     ).join('\n');
-
     let batchData;
     try { batchData = await gql(`{ ${aliasQ} }`, {}, token); }
     catch { completed++; onBatchDone(Math.round((completed/batches.length)*100)); return; }
-
     const batchItems = [];
-    for (let i = 0; i < batch.length; i++) {
-      const parsed = parseBoardItems(batch[i], batchData[`b${i}`]?.[0], userId);
-      batchItems.push(...parsed);
+    for (let i=0; i<batch.length; i++) {
+      batchItems.push(...parseBoardItems(batch[i], batchData[`b${i}`]?.[0], userId));
     }
-
     completed++;
     allItems.push(...batchItems);
-    // Render incrementally as each batch finishes
     onBatchDone(Math.round((completed/batches.length)*100), batchItems);
   });
 
@@ -456,7 +568,127 @@ async function updateStatus(token, itemId, boardId, colId, statusIndex) {
   );
 }
 
-// ── Rendering ──
+async function createTask(token, userId, boardId, groupId, name, dueDate) {
+  // Build column values — assign to self + optional due date
+  const colValues = {};
+
+  // Find people column ID for this board
+  const boardData = await gql(`{ boards(ids:[${boardId}]) { columns { id type } } }`, {}, token);
+  const cols = boardData.boards?.[0]?.columns || [];
+  const personCol = cols.find(c => c.type === 'people');
+  const dateCol   = cols.find(c => c.type === 'date');
+
+  if (personCol) colValues[personCol.id] = { personsAndTeams: [{ id: parseInt(userId), kind: 'person' }] };
+  if (dateCol && dueDate) colValues[dateCol.id] = { date: dueDate };
+
+  const mutation = groupId
+    ? `mutation($name:String!,$vals:JSON!){
+         create_item(board_id:${boardId}, group_id:"${groupId}", item_name:$name, column_values:$vals, create_labels_if_missing:false){ id }
+       }`
+    : `mutation($name:String!,$vals:JSON!){
+         create_item(board_id:${boardId}, item_name:$name, column_values:$vals, create_labels_if_missing:false){ id }
+       }`;
+
+  const result = await gql(mutation, { name, vals: JSON.stringify(colValues) }, token);
+  return result.create_item?.id;
+}
+
+async function fetchGroups(token, boardId) {
+  const d = await gql(`{ boards(ids:[${boardId}]) { groups { id title } } }`, {}, token);
+  return d.boards?.[0]?.groups || [];
+}
+
+// ── Board picker ──
+function populateBoardPicker() {
+  const sel = document.getElementById('new-task-board');
+  const current = sel.value;
+  sel.innerHTML = '<option value="">Select a board…</option>';
+  const sorted = [...cachedBoards].sort((a,b) => a.name.localeCompare(b.name));
+  sorted.forEach(b => {
+    const opt = document.createElement('option');
+    opt.value = b.id; opt.textContent = b.name;
+    if (b.id === current) opt.selected = true;
+    sel.appendChild(opt);
+  });
+}
+
+document.getElementById('new-task-board').addEventListener('change', async function() {
+  const groupSel = document.getElementById('new-task-group');
+  if (!this.value) {
+    groupSel.innerHTML = '<option value="">Select a board first…</option>';
+    groupSel.disabled = true;
+    return;
+  }
+  groupSel.innerHTML = '<option value="">Loading…</option>';
+  groupSel.disabled = true;
+  try {
+    const groups = await fetchGroups(getToken(), this.value);
+    groupSel.innerHTML = '<option value="">No specific group</option>';
+    groups.forEach(g => {
+      const opt = document.createElement('option');
+      opt.value = g.id; opt.textContent = g.title;
+      groupSel.appendChild(opt);
+    });
+    groupSel.disabled = false;
+  } catch {
+    groupSel.innerHTML = '<option value="">Could not load groups</option>';
+  }
+});
+
+// ── Drawer ──
+function openDrawer() {
+  document.getElementById('new-task-name').value = '';
+  document.getElementById('new-task-board').value = '';
+  document.getElementById('new-task-group').innerHTML = '<option value="">Select a board first…</option>';
+  document.getElementById('new-task-group').disabled = true;
+  document.getElementById('new-task-due').value = '';
+  document.getElementById('drawer-err').textContent = '';
+  document.getElementById('drawer-submit').disabled = false;
+  document.getElementById('drawer-overlay').classList.add('open');
+  setTimeout(() => {
+    document.getElementById('drawer').classList.add('open');
+    document.getElementById('new-task-name').focus();
+  }, 10);
+}
+function closeDrawer() {
+  document.getElementById('drawer').classList.remove('open');
+  document.getElementById('drawer-overlay').classList.remove('open');
+}
+
+document.getElementById('new-task-btn').addEventListener('click', openDrawer);
+document.getElementById('drawer-close').addEventListener('click', closeDrawer);
+document.getElementById('drawer-cancel').addEventListener('click', closeDrawer);
+document.getElementById('drawer-overlay').addEventListener('click', closeDrawer);
+
+document.getElementById('drawer-submit').addEventListener('click', async () => {
+  const name    = document.getElementById('new-task-name').value.trim();
+  const boardId = document.getElementById('new-task-board').value;
+  const groupId = document.getElementById('new-task-group').value;
+  const due     = document.getElementById('new-task-due').value;
+  const errEl   = document.getElementById('drawer-err');
+  const submitBtn = document.getElementById('drawer-submit');
+
+  errEl.textContent = '';
+  if (!name)    { errEl.textContent = 'Task name is required.'; return; }
+  if (!boardId) { errEl.textContent = 'Please select a board.'; return; }
+
+  submitBtn.disabled = true;
+  submitBtn.textContent = 'Creating…';
+  try {
+    await createTask(getToken(), currentUserId, boardId, groupId, name, due);
+    closeDrawer();
+    showToast('✓ Task created');
+    // Refresh to show the new task
+    clearCache();
+    load(getToken());
+  } catch(e) {
+    errEl.textContent = `Could not create task: ${e.message}`;
+    submitBtn.disabled = false;
+    submitBtn.textContent = 'Create Task';
+  }
+});
+
+// ── Render ──
 function formatDue(dateStr) {
   if (!dateStr) return null;
   try {
@@ -473,30 +705,26 @@ function formatDue(dateStr) {
 function buildStatusPill(item, token) {
   const wrap = document.createElement('div');
   wrap.className = 'status-wrap';
-
   const pill = document.createElement('button');
   pill.className = 'status-pill';
   pill.style.background = statusColor(item.status);
   pill.innerHTML = `${escHtml(item.status)} <span class="pill-caret">▾</span>`;
-
   const menu = document.createElement('div');
   menu.className = 'status-menu';
-  document.body.appendChild(menu); // attach to body so fixed pos works in Electron
-
+  document.body.appendChild(menu);
   for (const opt of item.statusOptions) {
     const row = document.createElement('div');
-    row.className = 'status-option' + (opt.label === item.status ? ' current' : '');
+    row.className = 'status-option'+(opt.label===item.status?' current':'');
     row.innerHTML = `<span class="opt-dot" style="background:${opt.color}"></span>${escHtml(opt.label)}`;
     row.addEventListener('click', async e => {
       e.stopPropagation();
-      if (opt.label === item.status) { menu.classList.remove('open'); return; }
+      if (opt.label===item.status) { menu.classList.remove('open'); return; }
       menu.classList.remove('open');
       pill.classList.add('saving');
       pill.innerHTML = `Saving… <span class="pill-caret">▾</span>`;
       try {
         await updateStatus(token, item.id, item.boardId, item.statusColId, opt.index);
-        item.status = opt.label;
-        item.statusIndex = opt.index;
+        item.status = opt.label; item.statusIndex = opt.index;
         pill.style.background = opt.color;
         pill.innerHTML = `${escHtml(opt.label)} <span class="pill-caret">▾</span>`;
         menu.querySelectorAll('.status-option').forEach(r => r.classList.remove('current'));
@@ -511,28 +739,21 @@ function buildStatusPill(item, token) {
     });
     menu.appendChild(row);
   }
-
   pill.addEventListener('click', e => {
     e.stopPropagation();
     const wasOpen = menu.classList.contains('open');
     closeAllMenus();
-    if (!wasOpen && item.statusOptions.length > 0) {
+    if (!wasOpen && item.statusOptions.length>0) {
       const rect = pill.getBoundingClientRect();
       const mw = 180;
-      let left = rect.right - mw;
-      if (left < 8) left = 8;
+      let left = rect.right - mw; if (left<8) left=8;
       let top = rect.bottom + 4;
-      const estH = Math.min(item.statusOptions.length * 36, 220);
-      if (top + estH > window.innerHeight - 8) top = rect.top - estH - 4;
-      menu.style.left = `${left}px`;
-      menu.style.top  = `${top}px`;
-      menu.style.width = `${mw}px`;
+      const estH = Math.min(item.statusOptions.length*36, 220);
+      if (top+estH > window.innerHeight-8) top = rect.top - estH - 4;
+      menu.style.left=`${left}px`; menu.style.top=`${top}px`; menu.style.width=`${mw}px`;
       menu.classList.add('open');
     }
   });
-
-  // Clean up menu from body when card is removed
-  wrap._menu = menu;
   wrap.appendChild(pill);
   return wrap;
 }
@@ -541,10 +762,8 @@ function buildCard(item, token) {
   const due  = formatDue(item.due);
   const card = document.createElement('div');
   card.className = 'card';
-
   const top = document.createElement('div');
   top.className = 'card-top';
-
   const name = document.createElement('div');
   name.className = 'card-name';
   name.textContent = item.name;
@@ -554,32 +773,26 @@ function buildCard(item, token) {
   );
   top.appendChild(name);
   top.appendChild(buildStatusPill(item, token));
-
   const meta = document.createElement('div');
   meta.className = 'card-meta';
-  if (groupBy === 'status')
+  if (groupBy==='status')
     meta.innerHTML += `<span class="meta-tag board" title="${escHtml(item.board)}">${escHtml(item.board)}</span>`;
   meta.innerHTML += due
     ? `<span class="meta-tag ${due.cls}">${due.label}</span>`
     : `<span class="meta-tag nodue">No due date</span>`;
-
   card.appendChild(top);
   card.appendChild(meta);
   return card;
 }
 
 function renderBoard(items, token) {
-  // Clean up any body-attached menus from prior render
   document.querySelectorAll('.status-menu').forEach(m => m.remove());
-
   const boardEl = document.getElementById('board');
   boardEl.innerHTML = '';
-
   const boards = new Set(items.map(i => i.board));
   document.getElementById('summary').textContent = items.length
     ? `${items.length} task${items.length!==1?'s':''} across ${boards.size} board${boards.size!==1?'s':''}`
     : '';
-
   if (!items.length) {
     boardEl.innerHTML = `<div class="empty-state">
       <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
@@ -588,112 +801,92 @@ function renderBoard(items, token) {
       <span>No tasks assigned to you.</span></div>`;
     return;
   }
-
   const groups = {};
   for (const item of items) {
-    const key = groupBy === 'board' ? item.board : item.status;
-    if (!groups[key]) groups[key] = [];
+    const key = groupBy==='board' ? item.board : item.status;
+    if (!groups[key]) groups[key]=[];
     groups[key].push(item);
   }
-
-  const sortedKeys = Object.keys(groups).sort((a, b) => {
-    if (groupBy === 'status') {
-      const aD = /done|complet/i.test(a) ? 1 : 0;
-      const bD = /done|complet/i.test(b) ? 1 : 0;
-      return aD - bD || a.localeCompare(b);
+  const sortedKeys = Object.keys(groups).sort((a,b) => {
+    if (groupBy==='status') {
+      const aD=/done|complet/i.test(a)?1:0, bD=/done|complet/i.test(b)?1:0;
+      return aD-bD || a.localeCompare(b);
     }
     return a.localeCompare(b);
   });
-
   for (const key of sortedKeys) {
     const grpItems = groups[key];
-    const grp = document.createElement('div');
-    grp.className = 'group';
-
-    const dotColor = groupBy === 'status' ? statusColor(key) : '#0073ea';
-    const hdr = document.createElement('div');
-    hdr.className = 'group-header';
-    hdr.innerHTML = `
+    const grp = document.createElement('div'); grp.className='group';
+    const dotColor = groupBy==='status' ? statusColor(key) : '#0073ea';
+    const hdr = document.createElement('div'); hdr.className='group-header';
+    hdr.innerHTML=`
       <span class="group-dot" style="background:${dotColor}"></span>
       <span class="group-label">${escHtml(key)}</span>
       <span class="group-count">${grpItems.length}</span>
       <span class="chevron open">▶</span>`;
-
-    const cards = document.createElement('div');
-    cards.className = 'cards';
+    const cards = document.createElement('div'); cards.className='cards';
     for (const item of grpItems) cards.appendChild(buildCard(item, token));
-
     hdr.addEventListener('click', () => {
-      const open = cards.style.display !== 'none';
-      cards.style.display = open ? 'none' : 'flex';
+      const open = cards.style.display!=='none';
+      cards.style.display = open?'none':'flex';
       hdr.querySelector('.chevron').classList.toggle('open', !open);
     });
-
-    grp.appendChild(hdr);
-    grp.appendChild(cards);
-    boardEl.appendChild(grp);
+    grp.appendChild(hdr); grp.appendChild(cards); boardEl.appendChild(grp);
   }
 }
 
 // ── Load ──
-async function load(token, background = false) {
+async function load(token, background=false) {
   if (isRefreshing) return;
   isRefreshing = true;
-
   const cached = loadCache();
-
-  if (cached && cached.length > 0) {
-    // Show cached data immediately
+  if (cached && cached.length>0) {
     currentItems = cached;
-    document.getElementById('initial-loading').style.display = 'none';
+    document.getElementById('initial-loading').style.display='none';
     renderBoard(currentItems, token);
-    // Show stale indicator while refreshing in background
-    setStaleBadge(true);
-    setProgress(2); // nudge bar to show activity
+    setStaleBadge(true); setProgress(2);
   } else {
-    document.getElementById('initial-loading').style.display = 'flex';
-    document.getElementById('board').innerHTML = '';
-    document.getElementById('summary').textContent = '';
+    document.getElementById('initial-loading').style.display='flex';
+    document.getElementById('board').innerHTML='';
+    document.getElementById('summary').textContent='';
     setProgress(2);
   }
+  // Pre-populate board picker from cache while fetching
+  const boardsCached = loadBoardsCache();
+  if (boardsCached.length) { cachedBoards = boardsCached; populateBoardPicker(); }
 
   try {
     const me = await fetchMe(token);
+    currentUserId = me.id;
     const freshItems = [];
-
     await fetchMyItems(token, me.id, (pct, batchItems) => {
       setProgress(pct);
-      if (batchItems && batchItems.length > 0) {
+      if (batchItems && batchItems.length>0) {
         freshItems.push(...batchItems);
-        // Hide initial spinner once first tasks arrive
-        document.getElementById('initial-loading').style.display = 'none';
+        document.getElementById('initial-loading').style.display='none';
         currentItems = [...freshItems];
         renderBoard(currentItems, token);
       }
     });
-
-    // Final render with all items
     currentItems = freshItems;
     saveCache(currentItems);
     renderBoard(currentItems, token);
     setProgress(100);
-
     const now = new Date();
     document.getElementById('last-updated').textContent =
       `Updated ${now.getHours()}:${String(now.getMinutes()).padStart(2,'0')}`;
   } catch(e) {
     console.error('Monday plugin load error:', e);
     if (!currentItems.length) {
-      document.getElementById('initial-loading').style.display = 'none';
-      document.getElementById('board').innerHTML = `<div class="empty-state" style="color:#d83a52">
+      document.getElementById('initial-loading').style.display='none';
+      document.getElementById('board').innerHTML=`<div class="empty-state" style="color:#d83a52">
         <span>⚠ ${escHtml(e.message)}</span>
         <span style="font-size:11px;color:#999">Check your token or network.</span></div>`;
     } else {
       showToast('⚠ Refresh failed — showing cached tasks', 3000);
     }
   } finally {
-    setStaleBadge(false);
-    isRefreshing = false;
+    setStaleBadge(false); isRefreshing=false;
   }
 }
 
@@ -710,16 +903,15 @@ document.getElementById('connect-btn').addEventListener('click', async () => {
   }
 });
 document.getElementById('token-input').addEventListener('keydown', e => {
-  if (e.key === 'Enter') document.getElementById('connect-btn').click();
+  if (e.key==='Enter') document.getElementById('connect-btn').click();
 });
 document.getElementById('refresh-btn').addEventListener('click', () => {
   if (!isRefreshing) load(getToken());
 });
-
 function logout() {
   clearToken(); clearCache();
-  document.getElementById('token-input').value = '';
-  document.getElementById('setup-err').textContent = '';
+  document.getElementById('token-input').value='';
+  document.getElementById('setup-err').textContent='';
   showSetup();
 }
 document.getElementById('logout-btn').addEventListener('click', logout);
