@@ -768,9 +768,19 @@ function buildCard(item, token) {
   name.className = 'card-name';
   name.textContent = item.name;
   name.title = 'Open in Monday';
-  name.addEventListener('click', () =>
-    window.open(`https://${MONDAY_SUBDOMAIN}.monday.com/boards/${item.boardId}/pulses/${item.id}`, '_blank')
-  );
+  name.addEventListener('click', () => {
+    const url = `https://${MONDAY_SUBDOMAIN}.monday.com/boards/${item.boardId}/pulses/${item.id}`;
+    // In Electron (Front desktop), window.open opens in the app's webview.
+    // Creating a real <a> with target="_blank" and dispatching a click forces
+    // the OS to handle it, which opens the system default browser instead.
+    const a = document.createElement('a');
+    a.href = url;
+    a.target = '_blank';
+    a.rel = 'noopener noreferrer';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+  });
   top.appendChild(name);
   top.appendChild(buildStatusPill(item, token));
   const meta = document.createElement('div');
