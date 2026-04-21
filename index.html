@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>My Work</title>
+<script src="https://dl.frontapp.com/libs/frontjs.min.js"></script>
 <style>
   * { box-sizing: border-box; margin: 0; padding: 0; }
   body {
@@ -365,7 +366,13 @@ let currentUserId = null;
 let groupBy       = localStorage.getItem(GROUP_KEY) || 'status';
 let isRefreshing  = false;
 
-// ── Toggle ──
+// Open a URL in the system browser, routing through Front SDK in desktop app
+function openUrl(url) {
+  try {
+    if (window.Front) { window.Front.openUrl(url); }
+    else { window.open(url, '_blank'); }
+  } catch { window.open(url, '_blank'); }
+}
 document.querySelectorAll('.toggle-btn').forEach(b => {
   b.classList.toggle('active', b.dataset.group === groupBy);
   b.addEventListener('click', () => {
@@ -384,7 +391,7 @@ function closeAllMenus() {
   document.querySelectorAll('.status-menu.open').forEach(m => m.classList.remove('open'));
 }
 
-// ── Colours ──
+// ── Toggle ──
 const STATUS_COLORS = {
   'done':'#00c875','completed':'#00c875',
   'working on it':'#fdab3d','in progress':'#fdab3d',
@@ -394,7 +401,7 @@ const STATUS_COLORS = {
 };
 function statusColor(l) { return STATUS_COLORS[(l||'').toLowerCase()] || STATUS_COLORS.default; }
 
-// ── Storage ──
+// ── Colours ──
 function getToken() { return localStorage.getItem(STORAGE_KEY); }
 function saveToken(t) { localStorage.setItem(STORAGE_KEY, t); }
 function clearToken() { localStorage.removeItem(STORAGE_KEY); }
@@ -415,7 +422,7 @@ function clearCache() {
   localStorage.removeItem(BOARDS_CACHE_KEY);
 }
 
-// ── UI helpers ──
+// ── Storage ──
 function showSetup(err) {
   document.getElementById('setup').style.display = 'flex';
   document.getElementById('main').style.display = 'none';
@@ -446,7 +453,7 @@ function escHtml(s) {
   return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 }
 
-// ── API ──
+// ── UI helpers ──
 async function gql(query, variables, token) {
   const r = await fetch(API, {
     method: 'POST',
@@ -768,19 +775,9 @@ function buildCard(item, token) {
   name.className = 'card-name';
   name.textContent = item.name;
   name.title = 'Open in Monday';
-  name.addEventListener('click', () => {
-    const url = `https://${MONDAY_SUBDOMAIN}.monday.com/boards/${item.boardId}/pulses/${item.id}`;
-    // In Electron (Front desktop), window.open opens in the app's webview.
-    // Creating a real <a> with target="_blank" and dispatching a click forces
-    // the OS to handle it, which opens the system default browser instead.
-    const a = document.createElement('a');
-    a.href = url;
-    a.target = '_blank';
-    a.rel = 'noopener noreferrer';
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-  });
+    name.addEventListener('click', () =>
+      openUrl(`https://${MONDAY_SUBDOMAIN}.monday.com/boards/${item.boardId}/pulses/${item.id}`)
+    );
   top.appendChild(name);
   top.appendChild(buildStatusPill(item, token));
   const meta = document.createElement('div');
