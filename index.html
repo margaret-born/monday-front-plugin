@@ -101,7 +101,31 @@
     font-weight: 500; font-size: 13px; line-height: 1.4;
     word-break: break-word; flex: 1; cursor: pointer;
   }
-  .card-name:hover { color: #0073ea; text-decoration: underline; }
+  .card-name:hover { color: #0073ea; }
+
+  /* ── Open in Monday popup ── */
+  .open-popup {
+    display: none; position: fixed; z-index: 9999;
+    background: #fff; border: 1px solid #e6e9ef;
+    border-radius: 10px; box-shadow: 0 4px 20px rgba(0,0,0,.15);
+    padding: 12px 14px; min-width: 220px; max-width: 280px;
+  }
+  .open-popup.visible { display: block; }
+  .open-popup-title { font-size: 11px; color: #676879; margin-bottom: 8px; font-weight: 500; }
+  .open-popup-url {
+    font-size: 11px; color: #0073ea; word-break: break-all;
+    background: #f0f2f8; border-radius: 5px; padding: 5px 7px;
+    margin-bottom: 8px; user-select: all; cursor: text;
+  }
+  .open-popup-actions { display: flex; gap: 6px; }
+  .popup-btn {
+    flex: 1; padding: 6px 8px; border: none; border-radius: 6px;
+    font-size: 11px; font-weight: 600; cursor: pointer; transition: filter .1s;
+  }
+  .popup-btn.primary { background: #0073ea; color: #fff; }
+  .popup-btn.primary:hover { filter: brightness(.9); }
+  .popup-btn.secondary { background: #f0f2f8; color: #323338; }
+  .popup-btn.secondary:hover { background: #e6e9ef; }
   .card-meta { display: flex; flex-wrap: wrap; gap: 5px; align-items: center; }
   .meta-tag {
     font-size: 11px; background: #f0f2f8; color: #676879;
@@ -348,9 +372,68 @@
   <div class="drawer-err" id="drawer-err"></div>
 </div>
 
+<!-- ── Open in Monday popup ── -->
+<div class="open-popup" id="open-popup">
+  <div class="open-popup-title">Open this task in Monday:</div>
+  <div class="open-popup-url" id="open-popup-url"></div>
+  <div class="open-popup-actions">
+    <button class="popup-btn secondary" id="popup-copy-btn">Copy link</button>
+    <button class="popup-btn primary" id="popup-open-btn">Open in Monday ↗</button>
+  </div>
+</div>
+
 <div class="toast" id="toast"></div>
 
 <script>
+// ── Open in Monday popup ──
+let popupUrl = '';
+const popup    = document.getElementById('open-popup');
+const popupUrlEl = document.getElementById('open-popup-url');
+
+function showOpenPopup(url, anchorEl) {
+  popupUrl = url;
+  popupUrlEl.textContent = url;
+  // Position near the clicked element
+  const rect = anchorEl.getBoundingClientRect();
+  const pw = 280, ph = 110;
+  let left = rect.left;
+  let top  = rect.bottom + 6;
+  if (left + pw > window.innerWidth - 8) left = window.innerWidth - pw - 8;
+  if (top + ph > window.innerHeight - 8) top = rect.top - ph - 6;
+  popup.style.left = `${Math.max(8, left)}px`;
+  popup.style.top  = `${Math.max(8, top)}px`;
+  popup.classList.add('visible');
+}
+function hideOpenPopup() { popup.classList.remove('visible'); }
+
+document.getElementById('popup-copy-btn').addEventListener('click', e => {
+  e.stopPropagation();
+  navigator.clipboard.writeText(popupUrl).then(() => {
+    showToast('✓ Link copied');
+    hideOpenPopup();
+  }).catch(() => {
+    // Fallback for environments where clipboard API is blocked
+    const ta = document.createElement('textarea');
+    ta.value = popupUrl; ta.style.position = 'fixed'; ta.style.opacity = '0';
+    document.body.appendChild(ta); ta.select();
+    document.execCommand('copy');
+    document.body.removeChild(ta);
+    showToast('✓ Link copied');
+    hideOpenPopup();
+  });
+});
+
+document.getElementById('popup-open-btn').addEventListener('click', e => {
+  e.stopPropagation();
+  openUrl(popupUrl);
+  hideOpenPopup();
+});
+
+// Close popup when clicking outside
+document.addEventListener('click', e => {
+  if (!e.target.closest('.open-popup') && !e.target.closest('.card-name'))
+    hideOpenPopup();
+});
 const API              = 'https://api.monday.com/v2';
 const MONDAY_SUBDOMAIN = 'tlatech-company';
 const STORAGE_KEY      = 'monday_api_token';
@@ -366,12 +449,14 @@ let currentUserId = null;
 let groupBy       = localStorage.getItem(GROUP_KEY) || 'status';
 let isRefreshing  = false;
 
-// Open a URL in the system browser, routing through Front SDK in desktop app
+// Open a URL — try multiple approaches for Electron compatibility
 function openUrl(url) {
-  try {
-    if (window.Front) { window.Front.openUrl(url); }
-    else { window.open(url, '_blank'); }
-  } catch { window.open(url, '_blank'); }
+  // Try Front SDK first
+  try { if (window.Front) { window.Front.openUrl(url); return; } } catch {}
+  // Try top-level frame navigation (works in some Electron configs)
+  try { if (window.top && window.top !== window) { window.top.location.href = url; return; } } catch {}
+  // Final fallback
+  window.open(url, '_blank');
 }
 document.querySelectorAll('.toggle-btn').forEach(b => {
   b.classList.toggle('active', b.dataset.group === groupBy);
@@ -775,9 +860,11 @@ function buildCard(item, token) {
   name.className = 'card-name';
   name.textContent = item.name;
   name.title = 'Open in Monday';
-    name.addEventListener('click', () =>
-      openUrl(`https://${MONDAY_SUBDOMAIN}.monday.com/boards/${item.boardId}/pulses/${item.id}`)
-    );
+    name.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const url = `https://${MONDAY_SUBDOMAIN}.monday.com/boards/${item.boardId}/pulses/${item.id}`;
+      showOpenPopup(url, name);
+    });
   top.appendChild(name);
   top.appendChild(buildStatusPill(item, token));
   const meta = document.createElement('div');
